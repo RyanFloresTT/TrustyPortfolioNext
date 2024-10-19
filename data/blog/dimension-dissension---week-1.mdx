@@ -1,0 +1,45 @@
+---
+title: "Dimension Dissension - Week 1"
+date: '2022-12-31'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: Challenges with player animation, but made progress with combo tracking.
+---
+
+Hello readers!
+
+‍
+
+I'm glad you've found this page because I am excited to show my progress on this project that I've started. This week I decided to step it up from remaking old games to working on a much bigger project like Dimension Dissention.
+
+‍
+
+This game is inspired by the gameplay of Risk of Rain but with a few twists. I want items the player picks up throughout each run to be armor pieces that can either be upgraded somehow, or found in the wild with better rarities and therefore better stats. Armor is the biggest piece of power boost the player will encounter in each run, they have slot specific attributes that give the player extra stats like `+1 Jump` on a pair of boots, or even more complex and engaging passives like `For every second you stay in motion, increase your movement speed by 1%, stacking up 10 times`. I also want there to be a quest/objective system that the player will interact with each World. The player will choose between 3 things to do that World and they will need to finish it before moving onto the next. These quests can range from finding an item, to slaying bosses and more. There is more that I have planned but I don't want to spoil all the fun!
+
+‍
+
+Throughout the early stages of this project, I will be using free assets that I've found online, so that I can visualize what is happening on screen. I am NOT artistically gifted and I won't be attempting to create anything on my own, so when the project nears completion, I will more than likely end up outsourcing my artwork from a talented artist.
+
+‍
+
+This week I got started working on the basic movement of the player. I was having a hard time figuring out why my player has a slight `slide` to it. I haven't been able to nail it just yet, as I've moved on to work on other things, but it is at the top of my list of things to figure out. I did manage to get animations working, though because of the `Slide` I mentioned earlier, there is also a slight bit of lag between release of the key and stopping of the animation. This has given me a clue on how to fix the slide, but again, something to work on later. Animations were a PAIN to me because it was something I have never dealt with in unity before, I have always used default sprites in my little projects and not needed it. I learned a lot this time around and I got to mess with the animator window which was pretty cool as well. I learned that I didn't need an exit time for my animations, and that using ` animator.SetBool() ` is for continuous animations like moving, whereas ` animator.SetTrigger() ` is for one-time movements like an attack or jumping. This is what I used in my jumping animation.
+
+‍
+
+I decided to use this Skeleton Archer asset I found because it has a good amount of animations to it, and I like the style of it, and more importantly, I plan to create a Mage archetype class first, so creating the projectile for the arrows will also help a lot in the future.
+
+‍
+
+I put a Skeleton Warrior in my scene, but it isn't doing anything but standing idle, I will be working on combat next.
+
+‍
+
+I did start working on a little bit of the basic combat for the player though. I haven't implemented the animation for it yet, but I did manage to create a system where it keeps track of a combo, and once it hits ` maxCombo `, then it will shoot out an arrow with 2x the velocity. I know I won't likely keep the 2x velocity as the combo move, but the combo is something I want for the future, so it is nice to start working on it. I had a hard time figuring out how to switch the spawn 'side' of the arrow, it kept spawning on the right side of the player, even though it would still shoot in the direction of the player. This lead to a funny bug where, because the velocity of the arrow was so high at the time, when the player looked left and shot an arrow, the arrow would push the player so hard out of the scene it would clip through some of the platforms I had set up. Right now I have the player able to shoot twice before shooting the faster arrow.
+
+‍
+
+I also have a multi-jump system where I can control the max amount of jumps the player has, and it won't reset until the player has reached the ground. The player cannot jump in the air anymore if they haven't reached the ground and they have no remaining jumps. I also implemented a climbing system, where once the player enters the trigger collider of an object with the `climb` tag, they are allowed to use the `W` and `S` keys to travel up and down. This was accomplished by using the same method of movement as I use for moving left to right, but I also set the gravity of the player to 0 while on the climbable object, so that they can move up and down freely without gravity affecting them.
+
+‍
+
+This was a lot for week 1, and I can't wait to get working on it again and post about my progress for week 2. Stay tuned for more!

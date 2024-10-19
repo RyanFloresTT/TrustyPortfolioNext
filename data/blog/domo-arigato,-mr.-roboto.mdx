@@ -1,0 +1,139 @@
+---
+title: "Domo Arigato, Mr. Roboto"
+date: '2023-07-03'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I made my first command, but had some trouble doing so.
+---
+
+## **Its ALIVE!**
+
+Hello and welcome back to another blog post! I have been slowly getting back into the swing of things as I've settled with the realization that I am now a father! It is still crazy and I can't wait to watch my son grow older so I can play some games w/ him!
+
+This all started a few days ago when I was pinged on discord by a mentor of mine asking if I wanted to be associated with some changes on his discord bot. I have been interested in creating my own discord bot and saw this as a learning opportunity so of course I accepted the GitHub invitation to the project and got right to working.
+
+### **Project Setup**
+
+I decided to read through what was already present throughout the codebase as this was my first time working with a C# project that wasn't a game, let alone outisde of Unity! It was both equally exciting and scary. It was mostly scary because of the fact that this was also my first project I would be contributing that wasn't a private project like al of my other projects had been up to this point. I had only worked with my own stuff, and now it was time to work with someone else.
+
+Before I did anything I made sure to create a discord channel that I could use for testing all of my code out. Once I got all of that set up, I made sure to run the bot on my computer and test out the pre-existing command of `!DYEL` to make sure that everything was working ok.
+
+### **Exploring the Repo**
+
+I then decided I was going to add a new command, one that when used, would give a joke. I didn't really know what exactly that meant as I started working on it, but I knew I wanted the command to give a joke each time it was used.
+
+As I navigated around the different classes to learn what this program did, I felt like I was walking though somebody's room and it felt really weird. Now, this room happen to be very clean so it was easy enough to understand what was going on and how I could replicate some of the existing code to create something of my own.
+
+Within this repo, I found a class called `GeneralCommandsModule` in which I found something completely new to me, I'll show it first and break it down.
+
+```csharp
+public class GeneralCommandsModule : ModuleBase<SocketCommandContext> {
+
+[Command(`DYEL`)]
+
+[Summary(`Responds with the Lifting Day!`)]
+
+public Task DYELReplyAsync(int offset = 0) {
+
+WorkoutDay todaysWorkout = DYEL.GetWorkout(offset);
+
+// Example: if(Context.User.id == 284370066873647105) { DoTheSpecialRobbyStuff(); }
+
+return ReplyAsync($`Damn Right I Do! Today's focus is {todaysWorkout.Type} Round #{todaysWorkout.Round}`);
+
+}
+
+}
+```
+
+There are some new attributes here that I haven't seen before. II had to assume that `Command` and `Summary` came from the `using Discord.Commands;` line at the top of the class. This would also provide me with some information that I wanted later down the line.
+
+I realized that I could copy the `DYELReplyAsync` method and tweak it a bit so that it functions in the way I wanted to. From reading the class, I also realized that I could use `return ReplyAsync();` to give a response inside of the discord channel. This was going to by my way of relaying the joke to the discord.
+
+I then had to look for where I would get the joke for the command, and having previous knowledge working on Web Development in the past, I knew I could somehow use HTTP requests to call from certain APIs. I used the `https://api.chucknorris.io/` API to get my jokes. In this API, I found out I could personalize the joke a little bit by including a name as a parameter so that gave me a good idea, what if I could tell the joke about the person that was using the command? So, I decided that's what I was going to shoot for.
+
+I had to figure out how to call an API using C# so I browsed the web and found a good few things explaining how to do so, a big help was the documentation that Microsoft had, which I looked through and tried to replicate, but I ended up getting the most value when I watched a video explaining it a little better for me.
+
+### **Calling an API**
+
+This was my first time working with 'async' in C#. I have worked with it VERY briefly using JS, but I never really grasped the concept.
+
+I knew that async is a way to run multiple lines of code at the same time so that your application doesn't stop running. I know I messed something up a few times when my code would execute perfectly, but the server was terminated with code 0, meaning that again, nothing went wrong technically, but it wasn't giving the desired outcome so I knew I had been messing something up elsewhere. I came to find out it was because of 2 things. I had been doing the async part wrong and a different class I had created was using the method `Main` which I wasn't supposed to do because this program already had a main function that was the start. It was confusing the program because there were multiple entrances to it and couldn't figure out which was the real `main`.
+
+After I managed to fix those problems, I was then tasked with figuring out how to display the joke.
+
+I created a new data type called `JokeData` in which I created a bunch of properties, but these aren't just random properties that I created, these are all fields that you would see if you were to do a GET requrest to that API. To talk a bit more about that, I will show you the `Joke` class I made.
+
+```csharp
+public class Joke {
+
+public static async Task<JokeData> GetNewJokeAsync(string user) {
+
+string URL = $`https://api.chucknorris.io/jokes/random?name={user}&category=dev`;
+
+HttpClient client = new HttpClient();
+
+try {
+
+var response = await client.GetAsync(URL);
+
+string jsonResponse = await response.Content.ReadAsStringAsync();
+
+var joke = JsonConvert.DeserializeObject<JokeData>(jsonResponse);
+
+return joke;
+
+}
+
+catch (Exception e) {
+
+Console.WriteLine(e.Message);
+
+return null;
+
+}
+
+}
+
+}
+```
+
+As you can see, this class has one method called `GetJokeAsync` which takes in a string parameter called `user`. i will get to the parameter later, but for now, I want to talk about this part of the class
+
+‍
+
+```csharp
+try {
+
+var response = await client.GetAsync(URL);
+
+string jsonResponse = await response.Content.ReadAsStringAsync();
+
+var joke = JsonConvert.DeserializeObject<JokeData>(jsonResponse);
+
+return joke;
+
+}
+```
+
+In which I make use of the `JsonConvert.DeserializeObject<JokeData>(jsonResponse)` method to basically zipper the data I receive from the API call into a variable of type `JokeData`. I think that this is a super cool method that is really easy to use and makes it all the more easy to do API calls. I can package all the data I receive right into the data type that I want.
+
+‍
+
+Now, you may be asking, how did I go about creating all those properties for my `JokeData` class? Well, I did not know this was a feature of Visual Studio, but apparently if you have a JSON string copied in your clipboard, you can choose to paste the contents AS a C# class, with all the work done for you. It was amazing! The only downside to this copying method was that all my properties auto-generated with the capitalization that was in the JSON string, which was all lowercase, so in order to fix that, I made use of another attribute called `[JsonProperty(``)]` Where within the quotes, I put the JSON property as the name suggest, and I can name the class property anything I want. SUPER COOL STUFF!
+
+So I managed to do all of that and get the joke working in my test discord, however, it wasn't as personalized as I wanted it to be. I was using my discord name `@TrustyTea` in the name parameter of the API call, but when the message would appear with that name in the message, it wouldn't look like as if my name had been pinged by the bot, and instead it was just an everyday word. I wanted to create the feeling that the bot was talking back to the person who called the command so I needed to do a bit more research to figure out how to get the bot to actually ping someone.
+
+Documentation save the day again! Who would have thought that going to the Discord documentation would provide some information how how to work the Discord AP? I watched a short video they had on the subject and though the language they used was JS, the actual code was the same. So going back to the `GeneralCommandsModule` class where I created my own `Joke` command, I also made sure to send in through the call the `mention` of the caller using `Context.Message.Author.Mention`. This would give the actual mention of the user, giving the correct effect I wanted.
+
+Before I came up with this solution to the problem, I thought I was going to concatenate the name in front of the joke since most of the jokes had the name in front, but that was just it, only MOST of the time, this command would work properly, so I had to come up with another solution, which I just explained.
+
+Since I passed in the mention to the `GetJokeAsync` method, I used this parameter as a variable inside the API call itself, meaning that wherever the name would appear in the joke, the mention to the discord user would also appear.
+
+Thank you for reading that HUGE post, but I am really proud of what I was able to accomplish with a little help from what was already written. I learned how to make HTTP requests using C# and I gained a little more familiarity with async/await as well. I think this was a huge sucess, and though I am still waiting my approval and merge to the main branch, I was very excited to make my first Pull Request.
+
+After doing this mini-project, I think I'd very much like to take on creating my own discord bot for my personal discord channel. I think it would be a lot of fun and a good way to learn how to use C# outside of Game Development and the Unity Engine.
+
+If you'd like to see the repo this project is on, you can check it out [here](https://github.com/Vastlee/Six)!
+
+Thanks for reading and have a great day!

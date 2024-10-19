@@ -1,0 +1,56 @@
+---
+title: "Tower Defense Game - Part 1"
+date: '2023-05-18'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: The Grand Design.
+---
+
+Hello and welcome back! I am starting this series of posts that will go into detail the problems I face while developing a Tower Defense game!
+Today I am going over the design of the game.  If you don't want to miss future posts, make sure to subscribe to this website using the `Keep Up With Me` section below.
+**The Lore**
+Ages ago, my cousin and I spent our weekends together playing a gamemode called `Bed Wars` on a popular Minecraft server. In this game the objective is to accumulate resources from your generators, buy upgrades, and ultimately break the opposing teams beds. In this game, you could also spend your resources to upgrade your generator so that you could get higher quality resources, or increase the rate at which they generate. I want to recreate this mechanic in this game, making the player responsible for gathering resources from generators, choosing upgrades, or unlocking other generators.
+**Game Design**
+There will be 4 generators in each corner and you will start off with the most basic one. At the start of the game, you have 1 turret. You can unlock upgrades to this turret, like faster shooting speed and more damage. As you pick up the basic resource, you should want to do a few things with it:
+1. Generator Upgrades
+2. Turret Unit Upgrades
+3. Unlock another turret, or higher tier generators
+Here is some top notch concept art done by yours truly S-Tier Concept art of Unnamed Game
+
+![image](https://res.cloudinary.com/djdtmbpce/image/upload/v1714598304/646ade7eb39363e2e3221c75_conceptart_auadae.png)
+
+**Software Design**
+Something I know I lack is planning. I do know the outcomes of badly planned games, I have many of those in my repos. While that may be the case, I have also spent a lot of time learning and from my first game to now, I can safely say that I understand the saying `Failing to plan, is planning to fail`.
+I have been trying to make it a point each time I have a project I want to work on to plan as much as I can, even if most of it will be trashed, changed or kept at the end of the day.
+‍
+When I think about Software Design, I like to think about it in terms of questions so I can handle them like problems and solve for each.
+**What features do we want as a part of this game?**
+Though this is a list of things that may or may not end up in the final release, I like to think about all the things I want to include in the game, and a brief description of the behavior it should have.
+‍
+**Player movement:**
+There will be no player or moveable units. You will instead unlock and upgrade stationary turrets that will fight oncoming enemy units.
+
+**Camera:**
+The camera will stay in place.
+
+**Inventory System:**
+The generators will automatically generate the resource into the player's inventory, no need for collecting them with anything. The inventory will comprise of the UI showing the quantities of each of the resources you have.
+
+**Items:**
+Items will most likely be a data structure in itself. Something that has the type of resource, and an integer for the quantity.
+
+**Generators:**
+Generators will use coroutines to 'generate', or add, to your current amount of a specific resource. I can use the Singleton pattern to have a `ResourceManager` where I have a method like `AddToResource(int quantity, ResourceType resourceType)`.
+
+**Units/Turrets:**
+I will have to do some more research on this, but for now the plan is to have a sort of placeholder turret in place where the real one would be, it will look ghostly at first. Once you accumulate enough of a resource, you can click on the UI element to buy it, from then it will de-activate the ghost model, and activate the real one.
+The turret will use the `LookAt()` function to look towards it's nearest target.
+
+**Enemies:**
+I don't want to go over the top with this game, so for now I will be spawning enemies outside the view range of the camera to give the appearance that they are just coming out of nowhere. I will also use a basic enemy type for most of the game unless I find I have a lot of time left over. The enemies main objective is to move towards the HUB, if they are successful with running into it, the HUB will take damage. The goal of the game is to see how long you can survive.
+
+**Scaling:**
+I know in order to keep the game fun and engaging, I should incorporate some sort of scaling system. I am thinking of using the total amount of upgrades and/or total amount of resources gained as a metric to go off of when scaling enemy health and spawn speeds. More on this in the future.
+
+**Conclusion**
+I think that concludes today's discussion about designing our game. I will talk more about Software Design as I start coding in the next blog post! Remember, if you want to stay up to date on these blog posts, make sure to sign up to the newsletter below and you will be notified each time I publish a new post. Thanks and see you again soon!

@@ -1,0 +1,53 @@
+---
+title: "Using Extension Methods in C#"
+date: '2023-07-21'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I made use of Extension methods for my Discord bot.
+---
+
+Welcome back to another blog post! Today I am going over how and why I decided to use extension methods in my Discord bot project.
+
+### **Context:**
+
+So I have been slowly creating commands when I think of something cool I'd like to add to my bot. I have no audience so I don't have any requested features, so I add what I like.
+
+I've been working on a set of commands that would allow users to input a name of a game into a list, remove a game from the list, or call a random game from that list.
+
+This required me to learn about how to manipulate JSON data using C#, which I have never done up until this point, I also decided this was a perfect time to learn about Records, a really cool feature of C# 9, which I am not used to using while I work in Unity. I have made a blog post about Records and JSON so be sure to check that out as well!
+
+```csharp
+List<string> names = new();
+
+var name = names.Rand();
+```
+
+### **The Problem:**
+
+I have the `GameDataFileUtils` static class that I made us of to read from a JSON file and write to it, but the problem is, the class was made so only work with the GameData type. So I will have to fix this.
+
+### **The Solution:**
+
+### ***Extension Methods!***
+
+Extension methods are an amazing tool to use and this was my first time using them. Every time I learn a new tool and get some hands on work with it, I think it is the coolest thing on Earth and 'how could I have ever programmed before without knowing this`.
+
+These methods are exactly what they say they are, they extend methods to a data type.
+
+The easiest way to envision this is the List class. As it stands, there is no method you can call to get a random element of the list right? You can't do something like this
+
+This would be awesome right? Well it turns out we can actually implement this ourselves via an extension method! We can do something like this
+
+```csharp
+Random rand = new();
+
+public static T Random<T>(this List<T> list) {
+return list[rand.Next(0, list.Count)];
+}
+```
+
+This is something I've used in this project to get a random game from the list of GameData returned from reading the JSON file.
+
+Back to our GameDataFileUtils, which I've now renamed to `JSONFileUtils`. I went through and changed everything about each of the static methods in here to be extension methods and to make sure it works with all different types of JSON files. This was also a problem I ran into but quickly remedied with records. I made sure to use an abstract record that contained a property I knew all future JSON files would have, I called this record `JSONData`. So instead of looking for `GameData` or `EventData`, I know look for `JSONData`.
+‍
+This was a really fun time coding this out and I learned something new! Thanks for reading through this and i hope you have a great rest of your day!

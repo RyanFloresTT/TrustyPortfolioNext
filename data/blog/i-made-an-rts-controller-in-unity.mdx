@@ -1,0 +1,31 @@
+---
+title: "I made an RTS Controller in Unity"
+date: '2023-05-12'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I created an RTS movement system in Unity using the New Input System.
+---
+
+Hello and welcome back to another blog post! Today I am taking a detour and learning how to create an RTS controller in Unity.
+
+‍
+
+The first thing I did was create the input system. I really enjoy the flexibility of the `New Input System` that Unity has. Although there is a little bit more overhead to write out the code, I think it's a fantastic tool that everyone should be using. I set this up by importing the package and creating a new `Input Actions`. From there I create an `RTSController` Action Map, with a `2DOverlay` Action. For now, this will be our only action, but we will add more for moving our camera. I created a bind to the Left Mouse, which is what most RTS games use to control units as a default bind. After that, I generate the C# class of the `PlayerInputActions` so I can use them in my other scripts.
+
+I then make a `RTSController` script and attach it to an empty game object called `RTSController`. Within this script, I write the code that would allow me to run code when I perform the action. I also make use of the `.canceled` event on the same action, so that when the player releases their mouse it will stop the Overlay. I created a method called `GetMouseToWorldPosition` which will return a Vector3.
+
+After I'm able to the World Position of each mouse click, and release (due to the .canceled event), I can now fill in code in each of these callbacks. For starters, we use the world position of the mouse in `Physics2D.OverlapAreaAll(startPosition, endPosition)`, where startPosition is calculated when we first click, and endPosition is calculated when we release. I then made a `List<PlayerControllableUnits>`, which is another script I made that I will get into in just a moment. This OverlapAreaAll method will return an array of colliders so we iterate through all the colliders it found and if the collider object also contains the `PlayerControllableUnit` script, add it to the List `selectedUnits`. Within the `PlayerControllableUnits` I have 2 public methods, `SelectUnit()`, and `DeselectUnit()`. When we iterate through the colliders and add them to the list, I also call the `SelectUnit()` function. For now, the only thing I have it doing is enabling or disabling the border gameobject which is just a sprite around the unit. We can now select units in an area, and deselect them upon clicking!
+
+‍
+
+Now we have to figure out how to move our units when we right click! I set up another action in our `PlayerInputActions` Input Action Asset, which I named `MoveTowards`. This action will also be used to Attack, so this may not be a perfect name for it, but we will keep it for now. After I save the asset, I go back to my `PlayerControllableUnit`, in which I add a method called `MoveTo`. This method takes in a Vector 3 which I call `pos`. All this function does is use the method `Vector2.MoveTowards(transform.position, pos, moveSpeed * moveSpeedMultiplier)`. Whenever I create a speed like this, I like to multiply it by a multiplier, so I can change it later if I'd like to.
+
+‍
+
+From here I go back to the `RTSController` script and create a function called `MoveTowardsHorizontalLine`. I know that there are usually different ways to form your Units, such as a Circle, or a Line or something like scattered around. I want to make sure I am making my code legible to those who come in to this project later, even if it is me, so I know exactly what this method does, and so I can add other methods like `MoveTowardsWithinCircle` or something similar. I think that it is very important to make your code explicitly clear what it is trying to do, but back to the problem at hand!
+
+‍
+
+So we listen in to our `MoveTo` action and call the `MoveTowardsHorizontalLine` method when it is called. Within the `MoveTowardsHorizontalLine` method, I get the count of the units using `selectedUnits.count`, and use a for loop to add an additional bit of room so taht each unit can fit close together. I added another method for moving the units on a vertical line as well. I then added some UI elements to that the user can change formations with a drop down menu. That is it for this blog post. If you want to play this demo project, you can play the Web Build [here!](https://ryanflorestt.github.io/LearningEnvironment-RTS-Movement/Webbuilds/index.html)
+
+Thank you for tuning in! See you in the next post! :D

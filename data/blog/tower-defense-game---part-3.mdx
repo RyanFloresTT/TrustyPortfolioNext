@@ -1,0 +1,92 @@
+---
+title: "Tower Defense Game - Part 3"
+date: '2023-05-22'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: The HUB takes damage through the use of interfaces.
+---
+
+# **MORE DOTS! MORE DOTS!**
+
+Today I am going over how I solved the problem of handling damage in my Tower Defense Game. For now, the only object in the scene that can take damage is the HUB, but I don't know if I will want to have my turrets take damage and then have to be repaired. Enemies will also have to take some damage as well. I can't hard code each to take damage, so I make use of Interfaces!
+
+‍
+
+I built an interface called `ITakeDamage` with only one method in it :
+
+```csharp
+public interface ITakeDamage {
+
+public void TakeDamage(int damage);
+
+}
+```
+
+I absolutely love using interfaces and I know I have so much more to learn about them because I thought I could declare fields within an interface, but I was sorely wrong. I found out I could use properties, which I decided against using because I could not use them on the inspector which is a big part of what I want to do when it comes to declaring the max health of an object. I ultimately decided to code in health on everything that implements this interface, I will need to research ways I can improve upon this.
+
+‍
+
+So now that I built the interface, I implement it onto my HUB script:
+
+```csharp
+public class HUB : MonoBehaviour, ITakeDamage {
+
+[SerializeField] private int maxHealth;
+
+[SerializeField] private int currentHealth;
+
+private void Start() {
+
+currentHealth = maxHealth;
+
+}
+
+public void TakeDamage(int damage) {
+
+currentHealth -= damage;
+
+if (currentHealth <= 0) {
+
+Destroy(gameObject);
+}
+
+}
+
+}
+```
+
+Nothing super fancy here, just wanted to show the work so far!
+
+‍
+
+Moving on to the enemies though, I did learn something new while I was coding the Enemy script! It is called `Null Propagation`, it is a shorthand for `If (something == null) return;`. I knew of this a little bit because of the experience I have with Events in C#, using something like `OnPlayerDeath?.Invoke(this, EventArgs.Empty);`. But I just found out you could use it for any null check like this
+
+```csharp
+public class Enemy : MonoBehaviour {
+
+[SerializeField] private int damage = 1;
+
+private void OnTriggerEnter(Collider other) {
+
+var damageable = other.gameObject.GetComponent<ITakeDamage>();
+
+damageable?.TakeDamage(damage);
+
+Destroy(gameObject);
+
+}
+
+}
+```
+
+As you can see, I ended up using `OnTriggerEnter`. I also had some difficulty getting this to work properly. At first, I was using `OnCollisionEnter`, but I could not figure out how to get it to work. I had a collider on each of the objects, and the scripts were on the object that had the collider, but for some odd reason, when the enemies would collide with the HUB, nothing would happen. I even had a Rigidbody since that is also something it says could trigger the collision. In the end, I decided to turn the Enemies into `bullets`, and turn their colliders into a trigger. Once I used `OnTriggerEnter`, everything ended up working perfectly fine.
+
+‍
+
+You might also note that I destroy the enemy Game Object after it runs into something that can take damage, this wasn't here at first, but I had to add it later because of some more problems I was running into.
+
+When I was testing it out, I had the enemies run into the HUB and kill it, but the enemies would just stay hidden inside the HUB, not doing anything, not until the HUB lost all it's life and was Destroyed. This caused all the Enemy scripts to freak out because they were trying to target where the HUB was, but since it lo longer existed, they couldn't figure out where to go. I found a quick and easy way to fix this, though it may not be the final solution.
+
+I decided to create a new Vector3 variable that I called `currentTarget`, this would be set to the position of the transform from the inspector at `Start`. I then used this `currentTarget` inside the `Move()` function. I did this so that no matter what, the currentTarget would have a value set at the start of the scene. If the target ended up being destroyed, the script will still remember where to go because it was stored in the Vector3. ‍
+
+Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

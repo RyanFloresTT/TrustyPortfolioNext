@@ -1,0 +1,65 @@
+---
+title: "Dimension Dissension - Week 3"
+date: '2023-01-15'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I focused on player movement, basic combat, and climbing mechanics.
+---
+
+Hello everyone,
+
+‍
+
+It's been a busy week for me as I've been working on my game, Dimension Dissension. I managed to get a big chunk of work done on Friday night and I hope to continue that progress in the coming days.
+
+‍
+
+One of the major accomplishments this week was getting the quest system fully running. I had been struggling with how to design and implement different quests, but ultimately decided to use scriptable objects for this purpose. While it may be a bit more predictable and boring, it gave me the opportunity to write some quests and saved me time coding.
+
+‍
+
+I also rewrote some code to make use of interfaces and renamed and rescoped some variables. My thought process going forward is to restrict anything as much as I can, until I need to make it public. Additionally, I've been experimenting with encapsulation thanks to interfaces, which seem very interesting and useful.
+
+‍
+
+On the topic of quests, I also decided to make the quest selection process a little more fluid. Instead of having 3 quests in your face as soon as the game starts, players will be presented with one quest board with arrows to scroll through. This way, if I decide to have 1 or 10 quests per level, I can do so. However, I am currently having a hard time trying to figure out how to use my quest manager class in every level, and may have to create a `LevelTwoQuestManager` class for each level I create.
+
+‍
+
+I also started working on items this week, which will change the stats of the character. Right now, there is a funny bug where if the player stacks too much armor, when they are hit by enemies, the player will instead be healed. I already know what the problem is, but it's amusing nonetheless.
+
+‍
+
+As I continue to work on the game, I'm happy to say that I can see an end in sight for the project. There is still a lot of work to be done, but it's nice to know that it's possible. I'll be referencing my list of goals as I continue to work on the game.
+
+‍
+
+I've been considering my level design and have decided that I don't think I want to create multiple scenes. Instead, I'm going to have the player teleport to different locations on one scene with a transition to make it seem like they are going to a different level. This is to stick to my main theme of the game, which is the idea of the player fighting though different dimensions. To make this happen, I'm going to have each of these 'levels' change asset packs and make it look like the player is traveling through different dimensions. This way, the game will feel more cohesive and the level transitions will be more seamless.
+
+‍
+
+As I continue to work on Dimension Dissension, I'm excited to start focusing more on the game design. With most of the code done, it's time to start creating and implementing the visual elements of the game.
+
+‍
+
+Another goal for the coming week is to create more variance in the quests. I want to make sure that players have a variety of objectives to complete, and that each quest feels unique and interesting.
+
+‍
+
+I also plan to add hit animations to both the enemy and player characters, as well as death animations. This will add more realism and immersion to the game. Additionally, I want to create more armor pieces for players to use, giving them more options for customizing their character.
+
+‍
+
+Another important task on my to-do list is to implement a boss fight. This will add a sense of progression and accomplishment to the game.
+
+‍
+
+Other tasks on my list include creating an actual start menu/start scene, a death handler/functions, an ending menu/ending scene and Adding sound and music. I'm looking forward to making progress on all these fronts and continuing to bring Dimension Dissension to life.
+
+‍
+
+Lastly, I just found out about the Tilemap system in Unity and now I feel silly for spending an hour or more meticulously duplicating sprite tiles to make a map. Lesson learned.
+
+‍
+
+That's all for now, thanks for following my progress.

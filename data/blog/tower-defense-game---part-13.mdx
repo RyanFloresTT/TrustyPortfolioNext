@@ -1,0 +1,207 @@
+---
+title: "Tower Defense Game - Part 13"
+date: '2023-05-31'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: Time to create some abilities!
+---
+
+# **I've got the magic in me**
+
+Today I decided to work on my final feature for this game, Abilities! After I've got this system working a I want, it'll be time to start smoothing everything out, going back and fixing up my code, implementing sound and more menus and overall, just getting the game to look pretty!
+
+‍
+
+I started out by thinking about how I wanted to go about designing this system. I was torn between using another interface and using an abstract class. I decided to try both out and see which one performed better. I started off with an interface. I though about using an interface because I'm most comfortable with these and I know how to use them, plus I thought that they would work out here for me here. Before I explain what I did to use interfaces, I will explain what I wanted to do.
+
+‍
+
+As with everything this project, I am aiming for flexibility in my code so that I don't have to come back and code in more things later when I want different types of abilities. I created an `AbilityManager` that has an inspector field that you would insert your abilities that you want the player to use. Then I created a method to create a button for each of these abilities. I have a separate script called `AbilityButton` that will handle the selection and starting of the abilities. There is still a little bug in my code right now which makes it so you can't deselect a spell without having it fire off before you do so. I know how to solve this and it will be whole blog post because it will go into Delegates which is something I've just recently learned more about.
+
+‍
+
+The abiltiy button when pressed will activate the abiltity. For this to happen, the very first thing I need is to have an array that I can have in the inspector. Unfortunately, interfaces are not allowed in the inspector, so I had to try an abstract class. This proved to be the best way to handle this since I could have an array and functionally, nothing changed. I made base class that derived off the ScriptableObject class so that I could create different abilities and slot them in by hand. I created 2 different abilities, but both from my `LightningStrikes` ability, so they did exactly the same thing, but I wanted to test out selection/deselection between my ability buttons. I will create more abilities later, but wanted to make sure it worked properly before I did.
+
+‍
+
+I'll show you a few of my scripts here and talk about another problem I've been having for a long time, one that I thought was just something I'd have to work around, but came to find out was an option in my project settings I could disable :(. Fun stuff!
+
+‍
+
+Here is my AbilityManager class :
+
+```csharp
+public class AbilityManager : MonoBehaviour {
+
+[SerializeField] private Ability[] abilities;
+
+[SerializeField] private AbilityButton abilityButtonPrefab;
+
+[SerializeField] private Transform abilityContainer;
+
+public static AbilityManager Instance;
+
+private AbilityButton currentAbilityButton;
+
+private Ability currentAbility;
+
+private PlayerInputActions inputActions;
+
+private void Awake() {
+
+inputActions = new();
+
+inputActions.Player.LeftClick.performed += Handle_LeftClick;
+
+inputActions.Player.Deselect.performed += Handle_Deselect_Performed;
+
+Instance = this;
+
+}
+
+private void Handle_Deselect_Performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+
+currentAbilityButton?.DeselectAbility();
+
+currentAbility = null;
+
+}
+
+private void Start() {
+
+foreach (var ability in abilities) {
+
+ability.Initialize();
+
+CreateNewAbilityButton(ability);
+
+}
+
+currentAbilityButton = null;
+
+}
+
+private void OnEnable() {
+
+inputActions.Player.Enable();
+
+}
+
+private void OnDisable() {
+
+inputActions.Player.Disable();
+
+}
+
+private void Handle_LeftClick(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+
+currentAbilityButton?.Activate();
+
+}
+
+public void ChangeSelectedAbility(AbilityButton abilityButton) {
+
+currentAbilityButton?.DeselectAbility();
+
+currentAbilityButton = abilityButton;
+
+currentAbilityButton.SelectAbility();
+
+currentAbility = currentAbilityButton.Ability;
+
+}
+
+private void CreateNewAbilityButton(Ability ability) {
+
+var button = Instantiate(abilityButtonPrefab);
+
+button.transform.parent = abilityContainer;
+
+button.GetComponent<Button>().image.sprite = ability.GetAbilityIcon();
+
+button.Ability = ability;
+
+}
+
+}
+
+‍
+```
+
+Here is my LightningStrike ability ScriptableObject:
+
+‍
+
+```csharp
+[CreateAssetMenu(fileName = `LightningStrike`, menuName = `Abilities/LightningStrike`)]
+
+public class LightningStrikes : Ability {
+
+[SerializeField] private float damage;
+
+[SerializeField] private float strikeAreaRadius;
+
+[SerializeField] private GameObject lightningStrikeAnimationPrefab;
+
+[SerializeField] private Sprite iconImage;
+
+[SerializeField] private float spawnRadius;
+
+private Camera mainCamera;
+
+private float destroyDelayInSeconds;
+
+public override void Initialize() {
+
+damage = 1f;
+
+strikeAreaRadius = 1f;
+
+destroyDelayInSeconds = 1f;
+
+mainCamera = Camera.main;
+
+}
+
+public override void StartAbility() {
+
+LightningStrike();
+
+}
+
+private void LightningStrike() {
+
+Debug.Log(`Strike`);
+
+Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+
+RaycastHit hit;
+
+if (Physics.Raycast(ray, out hit) )  {
+
+var strike = Instantiate(lightningStrikeAnimationPrefab, hit.point, Quaternion.identity);
+
+strike.GetComponent<LightningStrikeDamage>().Damage = damage;
+
+Destroy(strike, destroyDelayInSeconds);
+
+}
+
+}
+
+private Vector3 GetWorldPositionFromMouse() => mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+public Vector2 GetRandomSpawnInCircle() => UnityEngine.Random.insideUnitCircle * spawnRadius;
+
+public override Sprite GetAbilityIcon() => iconImage;
+
+}
+
+‍
+```
+
+I then created a quick script that makes use of a sphere collider trigger that detects any enemy within and calls the `TakeDamage` method on it. This is placed on the LightningStrike animation prefab which is fired off each time the ability is. This lightning strike makes use of a raycast. This is the problem I mentioned earlier. Before I made the UI what it is now, I had originally thought to create a menu that would pop up on each unit that you would click on, sadly this wasn't possible with the way I was doing things, which was using a raycast. The ray I was using then would hit the sphere collider (trigger) that was present on the defenses. This was problematic becasue of how big the radius was for it's targetting, everytime I would cast a new ray, it would target that defense. This would remain true when I would use a raycast to spawn the lightning bolts, spawning them on top of the collider in the middle of the air. I then googled any solutions that people had and came to find out that there is a checkbox that I needed to uncheck that would have rays hit trigger colliders. If only I had seen that sooner!!
+
+‍
+
+Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

@@ -1,0 +1,67 @@
+---
+title: "Tower Defense Game - Part 9"
+date: '2023-05-26'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: Spending Our Hard Earned Resources!
+---
+
+# **Money! Money! Money!**
+
+First, let's talk about what I envisioned when starting this. I keep my goal of using the least amount of MonoBehaviours and trying to keep everything as broad as possible that I can reuse this system on other things, like purchasing upgrades on a different type of unit, or purchasing a unit all together.
+
+‍
+
+The very basic function that this system would need to perform is the ability to deduct a certain amount of points from my pool of resources, and make sure that I have enough of those resources before I make the purchase. I had to think about a way to get the last part to work properly, and we will talk about how I managed to get that to work as well! :D
+
+‍
+
+So that first requirement, deducting an amount from the pool of resources. I go into my ResourceHandler class and create a new method called `Purchase`, this, like its counterpart, takes in a ResourceData as its parameter. I basically perform the same logic as I do in the `AddToResources` method, with a tiny twist. I first make sure that I can make the purchase. I use this lambda expression to check that it is the key is in the dictionary, and that there is an amount inside that is greater than the amount required to make the purchase.
+
+```csharp
+private bool HasKeyAndRequiredAmount(ResourceData data) => resourceMap.ContainsKey(data.Tier) && data.Amount <= resourceMap[data.Tier];
+```
+
+For context, here is the `Purchase` method as well, just so you can see what I'm dealing with. I made this a public function so that I can use it in the UpgradeManager class, which uses the return value as part of another lambda expression which validates that the upgrade is not at max level, it is not null, and that you have enough to purchase it and that the resource exists in your pool of resources.
+
+‍
+
+```csharp
+‍
+
+public bool Purchase(ResourceData data) {
+
+if (HasKeyAndRequiredAmount(data)) {
+
+resourceMap[data.Tier] -= data.Amount;
+
+OnResouceCountChanged?.Invoke(this, resourceMap);
+
+return true;
+
+}  else  {
+
+return false;
+
+}
+
+}
+```
+
+I then decided to include a few more fields on the upgrades. I now have a `costPerLevel`, and a `costIncreasePerLevel`. I also have a new public method as part of the `IUpgrade` interface called `GetrPurchasePrice`. This returns a new ResourceData which has the cost and the resource tier that it is looking to spend. I also use this as part of the purchase method talked about earlier. This was part of the problem that I was having.
+
+‍
+
+At first, I tried to include a normal field, but forgot that you can't do that in an interface, I then decided to include a property for them, but it wasn't all that much better than just using a public variable since it wouldn't let me set the `set` of the properties to be private. I decided to just create a new method that would return the total cost, which would need to be a return type of `ResourceData` no matter what, so in any class that I implement this interface, I would also need to have this method too. Which then brings me back full circle to being able to call this in my `GeneratorUpgradeManager` class, instead of having to separate even more things out, I have it included in the interface and it is much nicer and cleaner this way in my opinion.
+
+‍
+
+The only thing that kinda bothers me at this point is the sheer amount of fields that the `Generator` has now. Sure, the `GeneratorUpgradeManager` is collapsable, and so are the upgrades themsleves, but it is just a bit jarring to me to see so many fields tied to this `one` script, even though it is many within each other. *Scriptception*!
+
+‍
+
+So now, getting the purchase price from the upgrade, I validate that it can be upgraded further, you have the funds, and that the upgrade is there. Then you spend the resources, and upgrade as normal! This is all still just laying the ground work for me to build upon an really bulk up later down the line when I start to pretty-ify everything and balance things properly, but for now, it works! I can purchase upgrades with funds, and can't when I don't have enough! I know that I also set myself up to support events where I may want to display something to the player when they tried to purchase something, but they didn't have enough resources because of the code I've written now. I think this is a really good thing to think about, the future of your code, not just how to make it work right now, but to make it easier for your future self as well.
+
+‍
+
+This was a sort of shorter blog post than normal I think, I honestly wasn't expecting it to go so smoothly. I was expecting a lot more problems, but I'm not complaining! Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

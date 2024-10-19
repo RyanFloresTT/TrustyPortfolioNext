@@ -1,0 +1,215 @@
+---
+title: "Tower Defense Game - Part 11"
+date: '2023-05-27'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I make a UI canvas to handle upgrades.
+---
+
+# **User Interface**
+
+Today's blog post is going to be shorter than normal, I am just going to talk about how I approached creating a UI for my game and how I feel about what I've done so far.
+
+I guess you could say I started some work on this, but it was all pretty much place holder for when I reached this point. I am not an artsy person so I've downloaded some assets from the Unity Asset store, you can find these assets here.
+
+This is my first time creating an intricate User Interface like this, and while it works perfectly fine, I also think that there HAS to be a better way of doing this. I've created a basic little menu layout from the assets and created a `Horizontal Layout Group` to layout the buttons evenly.
+
+It looks nice, mostly because of the font and art I'm using from the asset pack. But where it gets super complicated is where I start to create new menus. Now, I don't actually know how optimal this is, but I am creating an entire new menu for each menu that I want to have. This is starting to look messy, but again, this is my first time messing around with UI on this scale, so maybe there is a way to do it, but I just haven't really learned it just yet. I will be looking into it though.‍
+
+See what I mean? It can look very messy and un-optimized at best. I have only created one upgrade menu for the coal generator so far, and I need 3 more. After that, I'll need an entire sub set of menus to unlock turrets and upgrade them, AND upgrading the hub. I am going to continue to do it this way because I think I'll want to pursue learning more about this as a separate topic all together.
+
+‍
+
+What is pretty cool about this system though, is how little I've needed to create more scripts to do what I want. Since buttons already have an OnClick event that I can assign objects to and call different methods from the components on that object, I can do LOTS of things. I don't even need to create a new script to toggle menu's since the button can do that by itself too. OnClick I disable the current Game Object menu, and then enable the menu I want to follow up on.
+
+‍
+
+I did end up importing the Input System that Unity has and created a new Input Actions with 1 action, to open the menu. I've set it to default at `e`. I might also want to research the topic of re-keybinding things, which I've never done and would like to do at some point. I also did create 1 script to deal with purchasing an unlockable unit or something. All it does is take an amount, the resource tier that it costs, the GameObject that it wants to unlock and then calls the `Purchase` method from the `ResourceHandler` class to attempt to make the purchase. If it is successful, then it moves on and enables the set Game Object. I also included a private bool that asks whether or not the Game Object in question is already active, if it is, which means it has already been purchased, then I'll show the next menu, which will be the upgrade menu for that particular object. Right now I also need to implement a way to display the current cost of upgrades and purchases, and to display current stats like the damage on a turret or the resource generation on a generator.
+
+So I've made more adjustments to the `Purchase` script so I can show off the cost of the purchase, as well as the ability to have a `Unlock Text` which hovers over the button, letting players know they can unlock it if they have the resources. I also added an `ErrorText` that the purchase script can toggle as well as the ResourceHandler. This text says `Insufficient resources or already at max level`. This is just to give some more info the the player so they know when to stop clicking a button. I also plan to put the level of the upgrade near the upgrade they are pressing to let them know what level they are and what the max level is and a short description of how much gain they are getting from the upgrade. It has a GameObject field that is the `unlockableObject`, upon successful purchase, this game object will be unlocked. At the start of the scene, if this game object is already active, then when you click the button, it will move onto the next menu if there is one, which is usually the upgrade menu for that unit.
+
+‍
+
+I think I could do a little better splitting out this class, there are a lot of SerialzeFields, but it works for what I'm doing so I think it's ok, here is the entire script if you'd like to see it.
+
+```csharp
+public class Purchase : MonoBehaviour {
+
+[SerializeField] private GameObject objectToUnlock;
+
+[SerializeField] private GeneratorTier resourceTier;
+
+[SerializeField] private float resourceCost;
+
+[SerializeField] private GameObject errorText;
+
+[SerializeField] private float errorTextDurationInSeconds;
+
+[SerializeField] private GameObject nextMenu;
+
+[SerializeField] private GameObject unlockText;
+
+[SerializeField] private TextMeshProUGUI costText;
+
+[SerializeField] private GameObject costGroup;
+
+[SerializeField] private GameObject thisMenu;
+
+private bool wasPurchased;
+
+private ResourceHandler resourceHandler;
+
+private void Start() {
+
+resourceHandler = ResourceHandler.Instance;
+
+wasPurchased = objectToUnlock.activeInHierarchy;
+
+costText.text = `x` + resourceCost.ToString();
+
+if(wasPurchased)  {
+
+costGroup.SetActive(false);
+
+unlockText.SetActive(false);
+
+}
+
+}
+
+public void MakePurchase() {
+
+if (wasPurchased) {
+
+ShowNextMenu();
+
+} else  {
+
+CompletePurchase();
+
+}
+
+}
+
+private void ShowErrorText() {
+
+errorText.SetActive(true);
+
+StartCoroutine(TurnOffErrorText());
+
+}
+
+private IEnumerator TurnOffErrorText() {
+
+yield return new WaitForSecondsRealtime(errorTextDurationInSeconds);
+
+errorText.SetActive(false);
+
+}
+
+private void CompletePurchase() {
+
+var data = new ResourceData(resourceTier, resourceCost);
+
+var successfulPurchase = resourceHandler.Purchase(data);
+
+if (successfulPurchase) {
+
+objectToUnlock.SetActive(true);
+
+unlockText.SetActive(false);
+
+costGroup.SetActive(false);
+
+wasPurchased = true;
+
+} else  {
+
+ShowErrorText();
+
+}
+
+}
+
+private void ShowNextMenu() {
+
+nextMenu.SetActive(true);
+
+thisMenu.SetActive(false);
+
+}
+
+}
+```
+
+It almost felt like I was just plugging everything in at this point. I hardly had to create new methods for things. Instead, I was creating UI elements, and then pointing them to either purchase a Unit, or level up a Unit's upgrades. After a while I managed to get everything working pretty smoothly! I can open the menu, click on things and see their cost, their name and whether or not I have something unlocked or not. I can also clearly see upgrade levels and costs and I'm very happy with what I've managed to create here
+
+```csharp
+public class UpgradeButtons : MonoBehaviour {
+
+[SerializeField] private int upgradeIndexOnUpgradeManager;
+
+[SerializeField] private TextMeshProUGUI upgradeCost;
+
+[SerializeField] private TextMeshProUGUI currentUpgradeValue;
+
+[SerializeField] private TextMeshProUGUI nextUpgradeValue;
+
+[SerializeField] private GameObject arrow;
+
+[SerializeField] private GameObject resourceImage;
+
+[SerializeField] private UpgradeManager upgradeableObject;
+
+private IUpgrade upgrade;
+
+private void Start() {
+
+upgradeableObject.OnUpgradeComplete += Handle_UpgradeComplete;
+
+upgrade = upgradeableObject.GetUpgradeFloats()[upgradeIndexOnUpgradeManager];
+
+UpdateUIText();
+
+}
+
+private void Handle_UpgradeComplete(object sender, System.EventArgs e) {
+
+UpdateUIText();
+
+}
+
+public void UpdateUIText() {
+
+upgradeCost.text = upgrade.GetPurchasePrice().Amount.ToString();
+
+currentUpgradeValue.text = upgrade.GetCurrentValue().ToString();
+
+nextUpgradeValue.text = upgrade.GetNextValue().ToString();
+
+CheckMaxLevel();
+
+}
+
+public void CheckMaxLevel() {
+
+if(upgrade.IsAtMaxLevel()) {
+
+arrow.SetActive(false);
+
+upgradeCost.text = (`MAX!`);
+
+resourceImage.SetActive(false);
+
+nextUpgradeValue.gameObject.SetActive(false);
+
+}
+
+}
+
+}
+```
+
+It is quite the long class, and again, I could probably do this a different way. I don't really like having a lot of [SerializeFields] but it's the solution to the problem I had. At the start, it grabs the Upgradeable Object in question and listens to the event that I created that is triggered when an upgrade is complete. I also get the upgrade that this button is targetting by getting the upgrades from the upgrade manager of the upgradeable object. I then update the UIText of the components listed, the upgrade cost, the current value and the next upgrade value. I also update the text each time the upgrade event is called. Inside this UpdateUI method, I also call a different method to check to see if the upgrade is at max level. If it is, then I remove excess information like the arrow, the cost and the `next` value. I am using horizontal layout groups here so when these items are removed or disabled, the remaining items go right back into the middle like nothing happened. I have this script on every single button that is responsible for upgrading something. This is my first time doing something like this with a UI and I'm sure there is a better way that what I am doing, I hope to learn more about it in the future, but that is for future me :D.
+
+Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

@@ -1,0 +1,57 @@
+---
+title: "Tower Defense Game - Part 5"
+date: '2023-05-24'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: Enemies have health and turret can shoot.
+---
+
+# **Yup, Friendly Fire was on...**
+
+Today I am going to go over the process I took and the problems I encountered while giving enemies health, and having turrets shoot at them.
+
+The first thing I thought about when approaching this problem was a few ways I could implement health for my enemy units. The biggest one is of course the interface I created a few posts ago, which is called `ITakeDamage`. This interface has a method called `TakeDamage`. This is all perfectly fine, except for one little detail. The way the enemies do damage, is via their trigger collider, doing damage to anything that they run into with an `ITakeDamage` interface, this would mean that enemies could run into each other and do damage. This was an easy fix though, I made use of a lambda expression called `IsNonEnemyDamageable` which takes in a GameObject as a parameter. This is what it looks like
+
+‍
+
+```csharp
+private bool IsNonEnemyDamageable(GameObject go) =>
+
+go.GetComponent<Enemy>() == null && go.GetComponent<ITakeDamage>() != null;
+```
+
+I also made use of `OnDestroy`, from MonoBehaivour so that I don't have to repeat invoking the event each time. I created a health system which has a method to subtract health when it is called, and destroys the GameObject when it reaches 0 health.
+
+Before we get into blasting the enemies with lasers. I want to take some time and tidy up my classes. More specifically, I want to split up the functions of the `TurretTargeting` class. I think what it does is fine, but it is called `TurretTargeting`, not `TurretTargettingAndRotating`. So I am going to build a script that does just that `TurretRotation`. This won't change the functionality, just keeping it separate so that we can have an easier time with our Shooting script. The TurretTargeting script should only be responsible for that, so I can make another script called `TurretShooting` or something, that will ask the Targeting class for the current target and do what it needs to with that information. I also made a new event that the Targeting script will invoke each time the target is updated.
+
+‍
+
+### **LASER TIME!**
+
+‍
+
+I will wait to add the actual lasers for another day, but for now, let's go over how I was able to get the turrets to shoot. As I said earlier, since I split the `TurretTargeting` class and included an event when the target changed, I am able to easily listen in on that broadcast and set the target on the `TurretShooting` script whenever the event is triggered. Whenever I have a new target, I start a Coroutine that looks like this:
+
+‍
+
+```csharp
+private IEnumerator FireLaser() {
+
+while (HasTarget()) {
+
+target.TakeDamage(damage);
+
+yield return new WaitForSeconds(firingDelayInSeconds);
+
+}
+
+}
+```
+
+This is a problem I've solved in the past with other projects. I know when I was younger there was a method called `StartCoroutine_Auto()` which would call the Coroutine repeatedly, but it has since been deprecated. I came up with this solution, though I'm not sure how *good* of a solution it is. This works as I want it to so for now, I will continue onwards.
+
+‍
+
+This post was a little shorter than I would normally have it be, but that is because I am planning on making an Object Pool from scratch for the first time, to handle enemy spawning, in the next post.
+
+Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

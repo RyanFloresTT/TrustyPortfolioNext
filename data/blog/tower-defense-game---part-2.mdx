@@ -1,0 +1,43 @@
+---
+title: "Tower Defense Game - Part 2"
+date: '2023-05-19'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: Basic scene setup & enemy logic.
+---
+
+Welcome back to this series of posts where I am going through my experience making this game and the problems I encounter and how my solutions to those problems. If you haven't read part one, I would **HIGHLY** suggest going back to read that one before you read this so you understand the direction I am going with this project.
+
+## **You Must Construct Additional Pylons!**
+
+I decided to start off building the scene by using placeholder objects, I plan to use an art pack from an awesome website that gives out free assets for developers to use. The pack I am using is [here](https://www.kenney.nl/assets/tower-defense-kit).
+
+‍
+
+### **The HUB and Materials:**
+
+I don't know much about materials, but I did mess around with the types and colors in order to create something I'd like to see until I implemented the real models.
+
+Speaking about that though, I have a lot of internal debate on whether or not to import and use models that I know I will use and have early on in the project, or wait until I have the logic working.
+
+One side of my believes it is better to wait so that you know what you will end up using and you know that your code works, but at the same time, I know that the visuals of a Game Object has nothing to do with the scripts on it. This would mean that it is okay for me to import the HUB model and use that all the way through development, and import turrets and other objects when I start to use them. What do you think about this? Let me know down below!
+
+After messing around with material types and surface types, I end up with a basic platform that has the placeholder HUB on it.
+
+### **Enemy & Movement:**
+
+### **Enemy Model:**
+
+As I do with everything, I create a new Empty Game Object that I can then create the 3D game object within it as a child for the visuals. I do this for a number of reasons, organization being one, but more importantly is the keeping logic and visual separated. I can also center the object exactly where I want visually on the child and the parent will be unaffected.
+
+When I was beginning to script the movement out, I decided to use these methods:
+
+This was giving some unexpected behavior at first, but I realized that Vector3.MoveTowards(), moves the object in the forward direction, which to a little bit of research later, I came to find out is the blue arrow you see while selecting a Game Object. Something good to know for the future!
+
+I ended up just rotating the child and keeping the movement logic on the parent, which ended up working perfectly!
+
+### **The Script:**
+
+I could have done this a whole bunch of different ways, but I decided to do it this way because it allows me to reuse this if I ever want ANYTHING to move towards a targeted area. For now I am using it only on these enemy capsules toward the HUB, I could have just called the script `MoveTowardsHUB` or `MoveTowardsCenter` since the HUB is at the center, but with this approach I can now reuse this for multiple different things in the future.
+
+Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

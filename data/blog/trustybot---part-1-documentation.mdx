@@ -1,0 +1,73 @@
+---
+title: "TrustyBot - Part 1: Documentation!"
+date: '2023-07-05'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I make slash commands and go over what problems I ran into.
+---
+
+### **01001000 01100101 01101100 01101100 01101111 00100001**
+
+Welcome back to another post! Today I am starting another blog post series in which I detail the process I took in creating my own discord bot `TrustyBot`.
+
+The idea to start my own bot came from working on another bot from a server I'm in, you can read about how I made my first command and how it inspired me to start work on my own bot [here](http://www.trustytea.me/post/domo-arigato-mr-roboto).
+
+### **What is Discord .NET?**
+
+Discord .NET is a library which makes use of the TAP(Task-based Asynchronous Pattern), Interfaces and Polymorphism. I am using this library to make my Discord bot.
+
+### **Documentation**
+
+After getting my hands a little dirty with the other Discord bot, I thought it was time enough to check out the Discord .NET documentation on how to create a bot of my own. You can check it out for yourself [here](https://discordnet.dev/guides/introduction/intro.html).
+
+Discord has a really well written documentation and I was able to follow it with no problem and I had my own bot up in less than a few minuets. Granted, there was nothing this bot could do, but nevertheless, the bot lived.
+
+Some more reading through the documentation lead me to start reading about commands. There are 2 different types of commands that discord supports, one where users prefix their command in a message that the bot will read, something like `!tell-joke`, where this command `tell-joke` is prefixed by a `!`, and also slash commands, where users prefix a command with a `/`, and won't appear as a message in the channel.
+
+Slash commands are semi-new to Discord and I haven't seen much of them used in the servers I'm in, so I wanted to try it out for this bot.
+
+‍
+
+### **Slash Commands**
+
+Thanks to the documentation, it was fairly easy to start building my own slash commands. There is a class called the `SlashCommandBuilder` which I can create instances of and modify using options provided by the class. Once I've got the options I want, I can then `build` the command. I'm not entirely sure how 'build' works behind the scene, but I imagine it to be packaging up this slash command and sending it to the bot so it can make use of it.
+
+Here is an example of how I create a slash command:
+
+```csharp
+public JokeCommand() {
+
+Program.Client.SlashCommandExecuted += Handle_SlashCommandExecuted;
+
+SlashCommandBuilder command = new SlashCommandBuilder()
+
+.WithName(COMMAND_NAME)
+
+.WithDescription(COMMAND_DESC)
+
+.AddOption(`user`, ApplicationCommandOptionType.User, `The user you want to tell a joke about`, isRequired: true);
+
+Program.RegisterCommand(command);
+
+}
+```
+
+As you can see, there are some constant variables I am using to define the name and description of each of the commands. There is also the `Progarm.RegisterCommand(command);` line, this is sending the command back to the program so I can mass 'build' them instead of calling build on each new command I create, I just send it back to the main program to do it.
+
+‍
+
+Speaking on this subject though, I am trying to figure out a way to do this without having it inside a constructor and creating an instance of each command I want to have in the bot. It looks like this in my main program.
+
+```csharp
+_ = new JokeCommand();
+
+_ = new AdviceCommand();
+```
+
+This is not something I'd like to continue to do so I am thinking of ways to not write a new line creating an instance of a joke when I shouldn't need to do so.
+
+‍
+
+I don't have any answers right not, but I assure you I will be back to tell you how awesome my solution is when I figure one out, for now I will be signing off this blog post and getting back to work.
+
+Thank you for reading and have a great day! :D

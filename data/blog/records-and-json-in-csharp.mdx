@@ -1,0 +1,83 @@
+---
+title: "Records and JSON in C#"
+date: '2023-07-21'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I use C# Records and JSON in my discord bot.
+---
+
+Hello and welcome to another blog post! Today I am going over how and why I made use of Records and the JSON file type in my Discord Bot.
+
+**Context:**
+I am building a set of commands where the user can either:
+• Input a Game's name into the list, along with a description if they choose to
+• Remove a Game from the list by it's name only
+• Output a random game name from the list available
+• See the list of games at any point
+I made each command in this order so I began with putting a game name into the list.
+
+**Problem:**
+While I have experience with JSON in other forms of programming, I have never used it while programming in C#. I actually began this problem using a plain text file which was most definitely the wrong choice. I actually did just lie a little there by saying I have never used JSON in C#, because in my last post about creating the `JokeCommand`, I made use of a JSON formatted data received from an API in the form of an HTTP request. I made use of this knowledge that I can serialize objects from a JSON format into a class and decided that this would be the best option for me going forward.
+
+**Solution:**
+I ended up trying to copy my solution to the `JokeCommand` problem and try and replicate it for this one. I knew I needed to create a new class where I could store the data for the Games so I made use of Records here to make `GameData`.
+
+This is what my record looks like :
+
+```csharp
+public record GameData(string Name, string Description);
+```
+
+Records are an amazing way to build classes that are meant to hold data! They are super simple to declare as you can see too which is amazing.
+I then created a static class called `GameDataFileUtils` so that I can call methods from this class anywhere to change my GameData from the JSON file. I'll go over each method here and explain what it does.
+
+```csharp
+public static void Write(object obj, string filePath) {
+var jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, options);
+File.WriteAllText(filePath, jsonString);
+}
+
+```
+
+This is my `Write` method. Pretty simple, but it takes an object and a file path and writes it to that file in the form of JSON with indentation turned on.
+
+```csharp
+public static void Add(GameData data, string fileName) {
+var contents = ReadFromJSON(fileName);
+contents.Add(data);
+Write(contents, fileName);
+}
+```
+
+
+This is the `Add` method. This takes in a GameData and a filepath. I will explain what `ReadFromJSON` does in just a second, but that method returns a list of GameData, reading from the file. I have to do this because when I write to the file, I am rewriting the entire file, so if I were to write a single entry in a file that has many more, it will wipe it out and leave only the single entry. I cache the contents of the file, add the new GameData and then write it back to the file.
+
+```csharp
+public static void Remove(string gameName, string fileName) {
+var contents = ReadFromJSON(fileName);
+for (int i = 0; i &lt; contents.Count; i++) {
+if (contents[i].Name == gameName) {
+contents.Remove(contents[i]);
+break;
+}
+}
+Write(contents, fileName);
+}
+```
+
+
+This `Remove` method searches through the file linearly (which I could optimize), and removes the first element of the JSON file which matches the string input from the user.
+
+```csharp
+public static List&lt;GameData&gt; ReadFromJSON(string filePath) {
+using StreamReader reader = new(filePath);
+var json = reader.ReadToEnd();
+List&lt;GameData&gt; data = JsonConvert.DeserializeObject&lt;List&lt;GameData&gt;&gt;(json);
+return data;
+}
+```
+
+
+This `ReadFromJSON` method reads the JSON file, and converts it's contents into a list of `<GameData>` by use of the `JsonConvert.DeserializeObject<List<GameData>>(json)` line.
+
+This works for now, but I know that I will run into a problem with this `GameFileUtils` class if I ever want to manipulate a JSON file that would be of a data type other than `GameData`. For now this is my solution, but I will work on another one in the meantime. Thank you for reading and have a great rest of your day!

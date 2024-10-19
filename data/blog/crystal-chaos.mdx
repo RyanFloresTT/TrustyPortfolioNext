@@ -1,0 +1,33 @@
+---
+title: "Crystal Chaos"
+date: '2023-10-02'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I revisit an my Tower Defense Game.
+---
+
+Before I welcomed my firstborn into the world, I was in the middle of development of a tower defense game that I named `Crystal Chaos.` I wrote down my progress through a series of blog posts, which you can still find on this website. As I start on a new phase of this project, I've decided to leave those blog posts intact, allowing you to revisit the earlier stages of my journey.
+
+### **Project Transformation**
+
+In the beginning, `Crystal Chaos` revolved around a complex system involving multiple tiers of in-game currency, generators, and defenses. However, as I found my passion for this project again, I realized it was time for a BIG makeover. The direction I've chosen now simplifies the resource system, making it more straightforward and engaging for players.
+
+In this revamped version, zombie kills will be the primary source of currency. Each zombie eliminated will yield a specific amount of currency, with basic zombies offering one unit and faster ones granting three, for instance. This streamlined approach allows for a more intuitive and immediate resource accumulation experience.
+
+One of the most significant changes is the exclusion of the upgrade system, at least in its traditional form. Instead, I'm introducing a way for enhancing survivors by enabling players to purchase weapon attachments. This shift away from currency tiers and upgrades opens up new possibilities for gameplay and strategy.
+
+The transformation of `Crystal Chaos` extends beyond gameplay mechanics. I've invested in a new graphics pack, courtesy of SYNTY, giving the game a fresh and appealing look. This graphical overhaul breathes new life into the project and aligns it with my evolving vision.
+
+### **Development Challenges and Solutions**
+
+As I dive into this reimagined version of the project, I've also had to make some tough decisions. I found myself deleting code that once played a crucial role, particularly related to upgrades and the old UI for the upgrade system. It was difficult to part with this code, but it was a necessary step in aligning the project with its new direction.
+
+Renaming variables and refining existing code have been essential tasks. My coding skills have evolved since I last worked on `Crystal Chaos,` and I'm using this opportunity to optimize and improve the project's architecture.
+
+However, every game development journey is not without its challenges. I encountered a particularly perplexing bug that had me scratching my head for a day or two, even with Visual Studio attached to Unity for debugging. What ultimately saved the day was a debug log.
+
+The issue centered around survivor targeting. I noticed that survivors were firing at enemies that weren't within their range, effectively shooting into thin air. It turned out that their target was never cleared, leading them to fire relentlessly. I initially attempted to future-proof the game by using a static class to determine the closest enemy from a list, given that I was using a game object pool.
+
+The crux of the problem lay in the fact that the object pool positioned the enemies at (0,0,0), which happened to be too close to the survivors. Consequently, survivors continued shooting at non-existent targets. My solution involved implementing a system where, upon an enemy's demise, they would broadcast a static action. All survivors would listen to this action and remove the enemy from their list if they were targeting it. However, this approach introduced unforeseen issues, as all survivors were listening to the same action, potentially causing conflicts when comparing game objects.
+
+In the end, I opted for a different strategy. I abandoned the static class for determining range and, instead, using a SphereCast around each survivor every frame to find their closest target. This approach not only resolved the immediate problem but also left room for future enhancements. The array of colliders returned by the sphere cast provides the flexibility to filter targets based on various criteria, such as closest, furthest, lowest health, or highest health, if I introduce something like enemy rankings, I could even have survivors target enemies based on that!

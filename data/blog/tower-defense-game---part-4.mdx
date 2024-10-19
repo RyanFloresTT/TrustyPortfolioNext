@@ -1,0 +1,101 @@
+---
+title: "Tower Defense Game - Part 4"
+date: '2023-05-22'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: Turret Rotation and Targeting!
+---
+
+# **Target Acquired!**
+
+Today I am going to go over my process in making my turrets look at oncoming enemies. While I was thinking about this, I was also thinking about other Tower Defense games, so taking inspiration from them, I think I want to incorporate some form of priority targeting. What I mean by this is I want players to tell a turret to target either the lowest health enemy, the furthest enemy, the nearest enemy and other options I may choose to include.
+
+‍
+
+I start off thinking about how I want this to function, and how I could make the script as 'future proof' as possible. This is what I'm thinking of doing so far, but let's see how long before Murphy calls in.
+
+‍
+
+### **The Master Plan**
+
+I am going to create a sort of `Targeting` script. This script will have a required component of type Sphere Collider, which will be set as a trigger. As a side note, whenever I use a collider that I set to use as a trigger, I will normally set it in code as well, especially when I use `[RequireComponent]`, this just ensures that whenever this script is attached, it has a collider, AND no matter what, it will be set to have the trigger active. Back to the plan, I will use `OnTriggerEnter` and detect whenever an object enters with a specific layer. I will have a serialized field for a LayerMask so that designers can use this script any time they want to `Target` anything that has a layer. After an acceptable object enters the trigger, it will shoot off an event. I will have another script that will listen to this event called `Turret` or something along those lines.
+
+‍
+
+Once these turrets get the signal, it will add that GameObject to a list of GameObjects. Thinking about it now, I might have another script that will take up this work like `TargetingHelper` that does what I want. I might create an enum `TargetingTypes` and within the `Turret` class, I will use another event to update the TargetingType and use a switch case to do what I want, when it's on a certain TargetingType. The `TargetingHelper` class will help me to figure out which of the Enemy Game Objects in the list is the one it should be targeting. For example, this is what I am thinking
+
+‍
+
+‍
+
+This code is partial pseudo code so if it looks funky, that's why.
+
+### **Knock Knock...**
+
+So that's the thought, but guess who called? That's right, Murphy.
+
+‍
+
+I ended up not using an interface, NOR did I end up using the LayerMask like I wanted. I had some trouble figuring out how to make a comparison between the layer on a Game Object, and the LayerMask, though obvious now, I learned they are not the same thing and I was given different numbers when trying to look at the layer vs LayerMask value. This was a little frustrating, and I know with a little more good google searching, I could probably figure out how to make the comparison. Maybe that will be a project for me one day, to create a helper script to make comparisons between a Game Object layer and a LayerMask. I ended up renaming the script to `TargetEnemyWithinRange`. I can still reuse this script on anything I want to target enemies, but it's not as flexible as I want it to be.
+
+‍
+
+I did not end up using an interface, but thinking about it now, I could use a base class called something like `TargetEnemy`, which `TargetEnemyWithinRange` can inherit off of. I'm not sure exactly why I would do that, but it is possible if I want that extra flexibility, if I want targeting to operate in a different way. But for what I am doing, no matter what, I want to target enemies within range, so I won't be creating that base class just yet.
+
+‍
+
+I started work on the `TargetingHelper` class, which looks like this now,
+
+‍
+
+‍
+
+I'm pretty happy with the way this works so far. This also gives me the ability to create multiple functions just like this, to target the healthiest, or weakest like we talked about earlier. I am using a static method here so that I can call this from wherever which is nice so I don't have to create a new one in each script I use it on. I was having some trouble with this at first, until I realized I made the noob mistake of not initializing the list in my `TurretTargeting` class. Once I ran it, I was encountering another issue, before I explain it, here is what some of the code looked like in the `TurretTargeting` class
+
+‍
+
+With what I have here, an enemy is added to a list of enemies everytime the event is triggered, which is everytime it enters range, but the problem was happening when the enemies were being destroyed on contact with the HUB. This was causing the Turret to not have a target anymore. To fix this I just created a new Static event, so that every enemy can relay this event when they are destroyed. The turret listens in on this event and removes the enemy that broadcasted the event from the list, no longer keeping it in as a possible target candidate. This is what it looks like now:
+
+```csharp
+private void Start() {
+
+targetingSource.OnObjectEnteredRange += Handle_TargetEnteredRange;
+
+Enemy.OnEnemyDestroyed += Handle_EnemyDestroyed;
+
+enemies = new();
+
+}
+
+private void Handle_TargetEnteredRange(object sender, Enemy e) {
+
+Debug.Log(`Target Acquired`);
+
+enemies.Add(e);
+
+}
+
+private void Handle_EnemyDestroyed(object sender, Enemy e) {
+
+enemies.Remove(e);
+
+}
+```
+
+After this it was a matter of figuring out how to keep the turret from rotating on all angles. I don't know much about Quaternions. At first I was just using the transform.LookAt() method, but decided against it since it would cause the entire turret to move in all directions. This is what I ended up with, which keeps the turret stationary, only rotating on the Y axis, which is exactly what I want.
+
+```csharp
+private void LooKAtTarget() {
+
+var lookPos = target.transform.position - transform.position;
+
+Quaternion lookRotation = Quaternion.LookRotation(lookPos, Vector3.up);
+
+float eulerY = lookRotation.eulerAngles.y;
+
+transform.rotation = Quaternion.Euler(0,eulerY,0);
+
+}
+```
+
+That is it for today's post. A lot of code and a lot of good work done, but thank you for taking the time to read through it! If you have a better way of doing something, or a question you want to ask, let me know down in the comments!

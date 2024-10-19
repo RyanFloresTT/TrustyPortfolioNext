@@ -1,0 +1,63 @@
+---
+title: "Hopscape : My GBJAM11 Adventure!!"
+date: '2023-10-30'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: My first ever game jam!!
+---
+
+Participating in a game jam is an exhilarating experience for any game developer. The challenge of creating a game from scratch within a limited time frame, often just a week, pushes your creativity and coding skills to their limits. GBJAM11 was no different for me, and I was determined to create something awesome.  In this blog post, I'll take you through the ups and downs of my GBJAM11 adventure and shed light on the development of our game, `Hopscape.`
+
+### **Setting the Stage:**
+
+GBJAM11 began with excitement and a clear vision of what we wanted to create. I teamed up with another developer, and we were ready to bring our game to life. However, life had other plans for us. My partner had to step back due to unforeseen real-life commitments, leaving me as the lead programmer and sole developer for the project.
+
+The project quickly turned into a juggling act. Balancing a full-time job, being a full-time student, and having a newborn baby was challenging enough. Adding project lead responsibilities and managing the development team became a monumental task. The pressure was on as I had to answer questions, ensure everyone was on the same page, and keep the project on track.
+
+### **Building the Foundation:**
+
+To start, I created a separate scene for myself to work on, a decision driven by the need to avoid merge conflicts on our project scene (which, ironically, we encountered later due to prefabs). Over the course of the week, I focused on getting the basics in place. Thanks to Unity's New Input System, I swiftly implemented player movement, laying the foundation for our game.
+
+With our designer on temporary leave, I took on the additional responsibility of designing levels. In this project, this meant crafting rooms that players could navigate.
+
+### **Enemies and Health:**
+
+As time constraints loomed, I decided to make enemies patrol according to predefined transforms, which ultimately gave our game a unique twist. It felt more like players were avoiding traps, which turned out to be quite engaging.
+
+Simultaneously, I worked on implementing player health, and foreseeing its use in enemy interactions, I created an interface! A potion script was developed to provide health to the player upon trigger, and a visual representation of player health using hearts was added.
+
+### **Collaborative Music and Other Contributions:**
+
+As my co-developer tackled the music script with our composer, we encountered a few hiccups along the way. However, we managed to resolve these issues and align the music with our vision just in time for the submission deadline.
+
+## **The Unique `Room` Feature:**
+
+One of the standout features of `Hopscape` that I worked on is the `Room` feature. Upon starting the game, players are presented with a choice: they must decide which room to incorporate into the level. This choice affects the game's difficulty and the potential points they can earn.
+
+To make this feature work, I started from the ground up. Defining what constitutes a room was the first step. In my view, a room had an exit door location, an entrance door location, and a type (encounter, potion, or puzzle). Over time, additional fields were added, such as camera animation positions and tiles that would animate when doors opened or closed.
+
+All these room attributes were encapsulated within a class called `RoomData,` which was marked as [Serializable]. This allowed me to edit the fields directly in the Unity inspector. To implement this, I created a MonoBehaviour called `Room` and attached it to empty game objects representing each room. This script contained various elements, including room points, actions for clearing and entering the room, and an OnDrawGizmos function for visualizing the room's size while it was selected.
+
+The Room script also featured a trigger, specifically a `PlayerWalkThroughDoor` trigger. This trigger was more intricate than a typical OnTriggerExit. It had to account for player entry and exit, ensuring that players wouldn't get locked out if they only briefly entered the room. Through some research, I found a way to determine the player's direction, making the trigger more versatile.
+
+### **Puzzles and Room Management:**
+
+To allow puzzles to play a crucial role in our rooms, my co-developer Robby created the RoomClearManager. This manager checked a list of game objects to see if they implemented the IPuzzleObject interface. If they were marked as `solved,` the RoomClearManager triggered the completion of room objectives through the current Room component.
+
+This concept extended beyond puzzles. For example, I used it to ensure players had the key before leaving the key room and to track enemy status so that the game recognized when all enemies were defeated before considering a room cleared. The potential for mixing different room types and interactions was promising but left for future exploration.
+
+### **The Room Manager:**
+
+The `RoomManager` class is at the heart of managing the game's rooms and plays a pivotal role in coordinating various game elements. It serves as a centralized control hub for key aspects of `Hopscape.` First and foremost, it manages two tilemaps: one for wall tiles and another for door tiles, defining the layout and appearance of rooms. As a singleton class, there is only one instance of `RoomManager` in the game, ensuring consistency in room management.
+
+One of its primary functions is tracking the state of rooms. It maintains a list called `MissingRooms,` which keeps tabs on the rooms that players have yet to add to their levels. This list is integral to the unique `Room` feature of the game, allowing players to select which rooms to incorporate into their gameplay experience.
+
+To effectively manage rooms, `RoomManager` subscribes to various events and delegates within the game. It listens for events triggered when players enable missing rooms, enter rooms, or clear rooms of objectives. When a player enters a room, the `RoomManager` comes into action by updating the game's camera position to match the new room, managing door animations, and ensuring that the correct wall and door tiles are displayed.
+
+In addition to its role in room management, `RoomManager` also plays a crucial part in user interface (UI) updates. It interacts with the UI to reflect the current state of the game, such as moving on to the next missing room after a player selects one.
+
+### **Conclusion:**
+
+I think the `Room` feature added some depth and replayability to our game, allowing players to shape their own experience to an extent..
+
+This GBJAM11 adventure was a rollercoaster, but it ultimately highlighted the importance of teamwork, adaptability, and creative problem-solving in game development. Give it a play and embrace the spirit of GBJAM11!

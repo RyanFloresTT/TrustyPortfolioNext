@@ -1,0 +1,47 @@
+---
+title: "Automate Everything!"
+date: '2024-07-24'
+tags: ['blog', 'rust', 'programming']
+draft: false
+summary: I automated my website deployment on my Ubuntu server from DigitalOcean.
+---
+
+I have recently been making a lot of smaller changes to my website, which means I have to go to my droplet on DigitalOcean and update it through several commands. I am using pm2, a process manager that is supposed to listen in on my file changes and update them as I go, but it’s mainly for node.js programs and since I’m using .NET, I think there might be some compatibility issues and it doesn’t do that for my project. I still use it so my Ubuntu server is ready to go and handle other tasks if I ever need to get on there and do something while my website is still running.
+
+The process isn’t necessarily hard or very time consuming, but it is quite tedious when I start to do it once a day after I push my changes to the repo. I recently took a course on [Boot.dev](https://boot.dev), which taught me a little more about Ubuntu, and bash commands and scripts. I decided to pursue some automation in my website using some of what I learned.
+
+It isn’t much, but it is most definitely going to save me time and increase my overall efficiency with publishing changes to my website.
+
+Here’s the script I made:
+
+```bash
+**#!/bin/bash
+
+cd TrustyPortfolio
+
+git fetch
+git pull
+
+cd ..
+
+# Manage pm2 processes
+pm2 delete 0
+pm2 save --force
+pm2 start dotnet --name `TrustyPortfolio` -- run --project `TrustyPortfolio/TrustyPortfolio.csproj`
+pm2 save
+
+# Run certbot with the required inputs
+certbot&lt;&lt;EOF
+1 2
+1
+EOF**
+```
+
+I use SSH for my git on this Ubuntu droplet, so I need to input my password for each command, and I was trying to experiment with having the script automatically input my password for me, but I wasn’t able to figure it out. So right now, I still have to manually input my password twice each time I run this script, but it’s still a lot better than manually writing all of the rest of what I need to do to re-run my website with the new changes.
+
+> How much do you automate your tasks in your work or personal projects? How complex are your scripts?
+>
+
+After this little bit of automation, I’d like to explore more ways I can automate the boring stuff(a book I still need to read btw). As of now I’m not sure what will come up, but knowing that I *can* automate, means I can identify potential pain points in my workflows that would benefit from automation.
+
+Thanks for reading, and I hope you have a great day!
