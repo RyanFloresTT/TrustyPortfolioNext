@@ -8,7 +8,8 @@ interface Project {
 const projectsData: Project[] = [
   {
     title: 'GBJAM11 - Hopscape',
-    description: 'I go over my entire first-ever GameJam experience, and, spoiler alert, it was amazing!',
+    description:
+      'I go over my entire first-ever GameJam experience, and, spoiler alert, it was amazing!',
     imgSrc: '/static/images/projects/hopscape.gif',
     href: 'https://github.com/RyanFloresTT/GBJAM11',
   },
@@ -22,7 +23,7 @@ const projectsData: Project[] = [
     title: 'Crystal Chaos',
     description: 'A tower defense game made in Unity. ',
     imgSrc: '/static/images/projects/zombiesurv.gif',
-    href: 'https://github.com/RyanFloresTT/TowerDefenseGame',
+    href: 'https://github.com/RyanFloresTT/',
   },
   {
     title: 'Discord Bot - TrustyBot',
@@ -50,9 +51,10 @@ const projectsData: Project[] = [
   },
   {
     title: 'Zombie Survival',
-    description: 'A tower-defense, zombie survival game where you can upgrade towers and move them around!',
+    description:
+      'A tower-defense, zombie survival game where you can upgrade towers and move them around!',
     imgSrc: '/static/images/projects/zombiesurvvvv.gif',
-    href: 'https://www.github.com/RyanFloresTT/TowerDefenseGame',
+    href: 'https://www.github.com/RyanFloresTT/',
   },
   {
     title: 'Kitchen Chaos',
@@ -84,7 +86,6 @@ const projectsData: Project[] = [
     imgSrc: '/static/images/projects/jom.jpg',
     href: 'https://github.com/RyanFloresTT',
   },
-];
-
+]
 
 export default projectsData

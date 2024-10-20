@@ -1,7 +1,7 @@
 ---
-title: "Dimension Dissension - Week 1"
+title: 'Dimension Dissension - Week 1'
 date: '2022-12-31'
-tags: ['blog', 'rust', 'programming']
+tags: ['Game Development', 'Unity', 'CSharp']
 draft: false
 summary: Challenges with player animation, but made progress with combo tracking.
 ---
@@ -22,7 +22,7 @@ Throughout the early stages of this project, I will be using free assets that I'
 
 ‍
 
-This week I got started working on the basic movement of the player. I was having a hard time figuring out why my player has a slight `slide` to it. I haven't been able to nail it just yet, as I've moved on to work on other things, but it is at the top of my list of things to figure out. I did manage to get animations working, though because of the `Slide` I mentioned earlier, there is also a slight bit of lag between release of the key and stopping of the animation. This has given me a clue on how to fix the slide, but again, something to work on later. Animations were a PAIN to me because it was something I have never dealt with in unity before, I have always used default sprites in my little projects and not needed it. I learned a lot this time around and I got to mess with the animator window which was pretty cool as well. I learned that I didn't need an exit time for my animations, and that using ` animator.SetBool() ` is for continuous animations like moving, whereas ` animator.SetTrigger() ` is for one-time movements like an attack or jumping. This is what I used in my jumping animation.
+This week I got started working on the basic movement of the player. I was having a hard time figuring out why my player has a slight `slide` to it. I haven't been able to nail it just yet, as I've moved on to work on other things, but it is at the top of my list of things to figure out. I did manage to get animations working, though because of the `Slide` I mentioned earlier, there is also a slight bit of lag between release of the key and stopping of the animation. This has given me a clue on how to fix the slide, but again, something to work on later. Animations were a PAIN to me because it was something I have never dealt with in unity before, I have always used default sprites in my little projects and not needed it. I learned a lot this time around and I got to mess with the animator window which was pretty cool as well. I learned that I didn't need an exit time for my animations, and that using `animator.SetBool()` is for continuous animations like moving, whereas `animator.SetTrigger()` is for one-time movements like an attack or jumping. This is what I used in my jumping animation.
 
 ‍
 
@@ -34,7 +34,7 @@ I put a Skeleton Warrior in my scene, but it isn't doing anything but standing i
 
 ‍
 
-I did start working on a little bit of the basic combat for the player though. I haven't implemented the animation for it yet, but I did manage to create a system where it keeps track of a combo, and once it hits ` maxCombo `, then it will shoot out an arrow with 2x the velocity. I know I won't likely keep the 2x velocity as the combo move, but the combo is something I want for the future, so it is nice to start working on it. I had a hard time figuring out how to switch the spawn 'side' of the arrow, it kept spawning on the right side of the player, even though it would still shoot in the direction of the player. This lead to a funny bug where, because the velocity of the arrow was so high at the time, when the player looked left and shot an arrow, the arrow would push the player so hard out of the scene it would clip through some of the platforms I had set up. Right now I have the player able to shoot twice before shooting the faster arrow.
+I did start working on a little bit of the basic combat for the player though. I haven't implemented the animation for it yet, but I did manage to create a system where it keeps track of a combo, and once it hits `maxCombo`, then it will shoot out an arrow with 2x the velocity. I know I won't likely keep the 2x velocity as the combo move, but the combo is something I want for the future, so it is nice to start working on it. I had a hard time figuring out how to switch the spawn 'side' of the arrow, it kept spawning on the right side of the player, even though it would still shoot in the direction of the player. This lead to a funny bug where, because the velocity of the arrow was so high at the time, when the player looked left and shot an arrow, the arrow would push the player so hard out of the scene it would clip through some of the platforms I had set up. Right now I have the player able to shoot twice before shooting the faster arrow.
 
 ‍
 

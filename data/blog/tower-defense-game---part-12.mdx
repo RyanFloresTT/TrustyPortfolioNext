@@ -1,7 +1,7 @@
 ---
-title: "Tower Defense Game - Part 12"
+title: 'Tower Defense Game - Part 12'
 date: '2023-05-27'
-tags: ['blog', 'rust', 'programming']
+tags: ['Game Development', 'Unity', 'CSharp']
 draft: false
 summary: Health bars for all!
 ---
@@ -10,7 +10,7 @@ summary: Health bars for all!
 
 ‍
 
-Today's topic is also going to be pretty light, a lot of this was talked about in the last post, but I will go over how I created health bars for my units in this game. I first created a MonoBehaviour called 'HealthBar`. Within this script, I have a SerializeField that asks for a game object that has health. It then makes sure that the game object has the component of `ITakeDamage`, which I've updated to include an event everytime the object takes damage. This class listens to that event, and updates the value of the health bar each time. Nothing too special, but I did have to cheat a little bit because I did run into a minor problem while doing this. I started to realize that enemies were spawning back in with negative health and low health bars, this was because I was never resetting the health on the enemies. I've now included a method on the enemies to reset the health, and the way I cheated a little was by calling the `TakeDamage` method on the enemies, but passing in 0 damage, this ensures that the `OnDamageTaken` event will be triggered and the health bar will be reset as well. I do this after I've set the current health to it's max health so that it can send the proper value.
+Today's topic is also going to be pretty light, a lot of this was talked about in the last post, but I will go over how I created health bars for my units in this game. I first created a MonoBehaviour called 'HealthBar`. Within this script, I have a SerializeField that asks for a game object that has health. It then makes sure that the game object has the component of `ITakeDamage`, which I've updated to include an event everytime the object takes damage. This class listens to that event, and updates the value of the health bar each time. Nothing too special, but I did have to cheat a little bit because I did run into a minor problem while doing this. I started to realize that enemies were spawning back in with negative health and low health bars, this was because I was never resetting the health on the enemies. I've now included a method on the enemies to reset the health, and the way I cheated a little was by calling the `TakeDamage`method on the enemies, but passing in 0 damage, this ensures that the`OnDamageTaken` event will be triggered and the health bar will be reset as well. I do this after I've set the current health to it's max health so that it can send the proper value.
 
 ‍
 

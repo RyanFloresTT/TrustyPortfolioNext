@@ -1,7 +1,7 @@
 ---
-title: "Records and JSON in C#"
+title: 'Records and JSON in C#'
 date: '2023-07-21'
-tags: ['blog', 'rust', 'programming']
+tags: ['CSharp', 'Tooling']
 draft: false
 summary: I use C# Records and JSON in my discord bot.
 ---
@@ -49,7 +49,6 @@ Write(contents, fileName);
 }
 ```
 
-
 This is the `Add` method. This takes in a GameData and a filepath. I will explain what `ReadFromJSON` does in just a second, but that method returns a list of GameData, reading from the file. I have to do this because when I write to the file, I am rewriting the entire file, so if I were to write a single entry in a file that has many more, it will wipe it out and leave only the single entry. I cache the contents of the file, add the new GameData and then write it back to the file.
 
 ```csharp
@@ -65,7 +64,6 @@ Write(contents, fileName);
 }
 ```
 
-
 This `Remove` method searches through the file linearly (which I could optimize), and removes the first element of the JSON file which matches the string input from the user.
 
 ```csharp
@@ -76,7 +74,6 @@ List&lt;GameData&gt; data = JsonConvert.DeserializeObject&lt;List&lt;GameData&gt
 return data;
 }
 ```
-
 
 This `ReadFromJSON` method reads the JSON file, and converts it's contents into a list of `<GameData>` by use of the `JsonConvert.DeserializeObject<List<GameData>>(json)` line.
 

@@ -12,7 +12,7 @@ import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 
 const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
 const discussUrl = (path) =>
-  `https://mobile.twitter.com/search?q=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}`
+  `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}&text=Check%20out%20this%20blog%20post!`
 
 const postDateTemplate: Intl.DateTimeFormatOptions = {
   weekday: 'long',
