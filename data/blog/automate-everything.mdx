@@ -15,7 +15,7 @@ It isn’t much, but it is most definitely going to save me time and increase my
 Here’s the script I made:
 
 ```bash
-**#!/bin/bash
+#!/bin/bash
 
 cd TrustyPortfolio
 
@@ -34,10 +34,12 @@ pm2 save
 certbot&lt;&lt;EOF
 1 2
 1
-EOF**
+EOF
 ```
 
 I use SSH for my git on this Ubuntu droplet, so I need to input my password for each command, and I was trying to experiment with having the script automatically input my password for me, but I wasn’t able to figure it out. So right now, I still have to manually input my password twice each time I run this script, but it’s still a lot better than manually writing all of the rest of what I need to do to re-run my website with the new changes.
+
+## A question for you!
 
 > How much do you automate your tasks in your work or personal projects? How complex are your scripts?
 

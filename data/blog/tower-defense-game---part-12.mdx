@@ -1,6 +1,6 @@
 ---
 title: 'Tower Defense Game - Part 12'
-date: '2023-05-27'
+date: '2023-05-29'
 tags: ['Game Development', 'Unity', 'CSharp']
 draft: false
 summary: Health bars for all!
@@ -8,72 +8,46 @@ summary: Health bars for all!
 
 # **Health Bars!**
 
-‍
-
-Today's topic is also going to be pretty light, a lot of this was talked about in the last post, but I will go over how I created health bars for my units in this game. I first created a MonoBehaviour called 'HealthBar`. Within this script, I have a SerializeField that asks for a game object that has health. It then makes sure that the game object has the component of `ITakeDamage`, which I've updated to include an event everytime the object takes damage. This class listens to that event, and updates the value of the health bar each time. Nothing too special, but I did have to cheat a little bit because I did run into a minor problem while doing this. I started to realize that enemies were spawning back in with negative health and low health bars, this was because I was never resetting the health on the enemies. I've now included a method on the enemies to reset the health, and the way I cheated a little was by calling the `TakeDamage`method on the enemies, but passing in 0 damage, this ensures that the`OnDamageTaken` event will be triggered and the health bar will be reset as well. I do this after I've set the current health to it's max health so that it can send the proper value.
-
-‍
+Today's topic is also going to be pretty light, a lot of this was talked about in the last post, but I will go over how I created health bars for my units in this game. I first created a MonoBehaviour called `HealthBar`. Within this script, I have a SerializeField that asks for a game object that has health. It then makes sure that the game object has the component of `ITakeDamage`, which I've updated to include an event everytime the object takes damage. This class listens to that event, and updates the value of the health bar each time. Nothing too special, but I did have to cheat a little bit because I did run into a minor problem while doing this. I started to realize that enemies were spawning back in with negative health and low health bars, this was because I was never resetting the health on the enemies. I've now included a method on the enemies to reset the health, and the way I cheated a little was by calling the `TakeDamage`method on the enemies, but passing in 0 damage, this ensures that the`OnDamageTaken` event will be triggered and the health bar will be reset as well. I do this after I've set the current health to it's max health so that it can send the proper value.
 
 After doing this, I also realized that my enemies were dying too fast from a single defense. I soon realized it was because I was never stopping the Coroutines whenever the defense got a new target, this would mean that if an enemy died while in the middle of it about to shoot, and targeted a new target, it would finish shooting and immediately recast a shot to the target, seemingly doing double damage at times. All I had to do to fix this was to call `StopAllCoroutines()` whenever the defense got a new target, and then also move the damaging portion of the Coroutine to AFTER the time, not before. This also ensures that it will only do damage to a target for staring at it for the delay time.
 
 ```csharp
 [RequireComponent(typeof(Slider))]
-
 public class HealthBar : MonoBehaviour {
+    [SerializeField] private bool isFloatingFacingCamera = false;
+    [SerializeField] private GameObject unitWithHealth;
 
-[SerializeField] private bool isFloatingFacingCamera = false;
+    private Slider healthBar;
+    private Camera mainCamera;
 
-[SerializeField] private GameObject unitWithHealth;
+    private void Start() {
+        healthBar = GetComponent<Slider>();
+        var damageable = unitWithHealth.GetComponent<ITakeDamage>();
 
-private Slider healthBar;
+        if (damageable != null) {
+            damageable.OnDamageTaken += Handle_OnDamageTaken;
+        }
 
-private Camera mainCamera;
+        mainCamera = Camera.main;
+    }
 
-private void Start() {
+    private void Handle_OnDamageTaken(object sender, float e) {
+        healthBar.value = e;
+    }
 
-healthBar = GetComponent<Slider>();
-
-var damageable = unitWithHealth.GetComponent<ITakeDamage>();
-
-if (damageable != null) {
-
-damageable.OnDamageTaken += Handle_OnDamageTaken;
-
-}
-
-mainCamera = Camera.main;
-
-}
-
-private void Handle_OnDamageTaken(object sender, float e) {
-
-healthBar.value = e;
-
-}
-
-private void Update() {
-
-if(isFloatingFacingCamera) {
-
-transform.rotation = mainCamera.transform.rotation;
-
-}
-
-}
-
+    private void Update() {
+        if (isFloatingFacingCamera) {
+            transform.rotation = mainCamera.transform.rotation;
+        }
+    }
 }
 ```
 
 I also included a bool on the inspector that you can toggle. All this does is when it is set to true, on `Update`, it sets the rotation equal to the camera rotation, so that it looks like the health bar is always facing the camera. Since I did it like this, it makes it optional and I can use it on non-camera facing health bars, like the one I made for the HUB, which is on the bottom of the screen, along side the abilities and current upgrade level.
 
-‍
-
 I create a Health Bar for the player to see the HUB health, and attach this script and direct it to the HUB. And its that simple! Everything works as intended! (weird right?)
 
-‍
-
 Today's post was super brief, but fret not! I still have a lot planned! I am going to make an ability system, and then polish the game up from there! I'm so close to finishing this game, stay tuned for the rest of the updates! :D
-
-‍
 
 Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

@@ -10,85 +10,53 @@ summary: I can apply upgrades to the HUB and turrets.
 
 Today shouldn't be too much of a problem since I've been building up to this for a while now. I am going to be building a new upgrade manager class to support upgrades for my turret objects. I will also be looking to see what I can do in terms of HUB upgrades. Right now the only 2 upgrades I can think about is the ability to store more resources, and the ability to upgrade the total max health. Let's get started with my `TurretUpgradeManager` class shall we!
 
-‍
-
 Since I am using an interface for most of this, I just have to implement the interface and define the methods in it's own way. Some of the methods will be the same, but since the turrets operate differently from the Generators, I need to have different logic. Thinking about it now, I think I could have created a base class of `UpgradeManager`, which has some default methods like the one that every one of them should share which is `LevelUpUpgrade`, but for now, I think I am ok with what I am doing.
-
-‍
 
 I thought I was going to have a problem with my enum `GeneratorUpgrades`, which was just a list of the different types of upgrades that can be applied to the generator, but I realized that I could also use the same types to upgrade a turret, I might want to rename some of these to make them more understandable, but for example, here is my renamed enum `UpgradeTypes`
 
-‍
-
 ```csharp
 public enum UpgradeTypes {
-
-AmountBase,
-
-RateBase,
-
-AmountMultiplierAdd,
-
-RateMultiplierAdd,
-
-AmountMultiplierMultiply,
-
-RateMultiplierMultiply
-
+    AmountBase,
+    RateBase,
+    AmountMultiplierAdd,
+    RateMultiplierAdd,
+    AmountMultiplierMultiply,
+    RateMultiplierMultiply
 }
 ```
 
 If you think about it, all of these upgrade types can be applied to a turret in some way, `AmountBase` can be used to change the base value of the damage, while `AmountMultiplierAdd` can add onto the damage multiplier. I can also use this for my HUB upgrades, which gives me more ideas for possible upgrades for it. I can use `AmountBase` to increase storage, and `AmountMultiplierAdd` to give an increase to incoming resources. There is a lot I can do and I'm glad I was able to catch this solution to the problem before I went through it more.
 
-‍
-
 So remember how I said that I thought I needed to create separate `UpgradeManagers` to upgrade different things? Well, it turns out that I was wrong! I did have to turn this class into a MonoBehaviour, but that's ok! I got this system working really well and I'm actually really happy with the way I got it to work!
 
 So I've since renamed the `GeneratorUpgradeManager` to just `UpgradeManager`. I've also made a few more tweaks that solved some problems that the previous system could not handle. I will show you the entire script and I'll go over the changes I made.
 
-‍
-
 ```csharp
 [RequireComponent(typeof(IGetUpgrades))]
-
 public class UpgradeManager : MonoBehaviour, IManageUpgrades {
+    [SerializeField] private UpgradeFloat[] upgradeSlots;
+    private IGetUpgrades upgradeObject;
+    private ResourceHandler resourceHandler;
 
-[SerializeField] private UpgradeFloat[] upgradeSlots;
+    private void Awake() {
+        upgradeObject = GetComponent<IGetUpgrades>();
+    }
 
-private IGetUpgrades upgradeObject;
+    private void Start() {
+        resourceHandler = ResourceHandler.Instance;
+    }
 
-private ResourceHandler resourceHandler;
+    public void LevelUpSlot(int slot) {
+        if (slot >= upgradeSlots.Length) return;
+        LevelUpUpgrade(upgradeSlots[slot]);
+    }
 
-private void Awake() {
+    public void LevelUpUpgrade(IUpgrade upgrade) {
+        if (!CanUpgrade(upgrade)) return;
+        upgrade.Upgrade(upgradeObject);
+    }
 
-upgradeObject = GetComponent<IGetUpgrades>();
-
-}
-
-private void Start() {
-
-resourceHandler = ResourceHandler.Instance;
-
-}
-
-public void LevelUpSlot(int slot) {
-
-if (slot >= upgradeSlots.Length) return;
-
-LevelUpUpgrade(upgradeSlots[slot]);
-
-}
-
-public void LevelUpUpgrade(IUpgrade upgrade) {
-
-if (!CanUpgrade(upgrade)) return;
-
-upgrade.Upgrade(upgradeObject);
-
-}
-
-public bool CanUpgrade(IUpgrade upgrade) => upgrade != null && !upgrade.IsAtMaxLevel() && resourceHandler.Purchase(upgrade.GetPurchasePrice());
-
+    public bool CanUpgrade(IUpgrade upgrade) => upgrade != null && !upgrade.IsAtMaxLevel() && resourceHandler.Purchase(upgrade.GetPurchasePrice());
 }
 ```
 
@@ -98,40 +66,23 @@ Next we will talk about the `IGetUpgrades` interface. This interface has one pub
 
 ```csharp
 public void ApplyUpgrades(UpgradeData data) {
-
-switch (data.type) {
-
-case (UpgradeTypes.AmountBase):
-
-IncreaseBaseAmount(data.value);
-
-break;
-
-case (UpgradeTypes.RateMultiplierAdd):
-
-IncreaseRateMultiplierFromBase(data.value);
-
-break;
-
-}
-
+    switch (data.type) {
+        case (UpgradeTypes.AmountBase):
+            IncreaseBaseAmount(data.value);
+            break;
+        case (UpgradeTypes.RateMultiplierAdd):
+            IncreaseRateMultiplierFromBase(data.value);
+            break;
+    }
 }
 ```
 
 I don't think this is the best way of doing it. Especially, for example, in the Generator class, you'd think that the Upgrade Manager would take care of changing the values, but instead each class that implements the `IGetUpgrades` interface must have it's own methods to change it's own values. I'm not sure how well I like this approach, but I may decide to do it another way, we shall see. This isn't really new to you if you've been following along though, but I wanted to show you that I've basically included this method on all things that want to get upgrades so I can generalize more often, back to the UpgradeManager class!
 
-‍
-
 Since this class is now a MonoBehaviour, I can get the instance of the ResourceHandler class on start instead of doing it each time that a level up was called. That was my only option since I didn't know how else to do it, but I'm glad I'm able to do it this way now. I've also removed some methods from the `GeneratorUpgradeManager`, previously there were 2 methods to upgrade each slot, which is again why it was such a huge problem that I wanted to fix, I'd have to hard code in a method each time I watned a turret to have more than the already created amoutn of upgrade slots. Now I have this one method called `LevelUpSlot` which takes in an int as a parameter. Then the `LevelUpUpgrade` is called on that upgrade slot if it exists in the array.
-
-‍
 
 The `Upgrade` method on the `IUpgrade` interface was also changed to include a parameter of type `IGetUpgrades`, this is to ensure that I am able to call the method `ApplyUpgrades`, which passes in the data as normal. I am extremely pleased with what I've been able to create so far, and to show off a little bit, I was able to enable upgrades on the HUB, and create an upgrade that would increase the max health of it within 5 minuets. I also did the same thing to apply a damage upgrade and Fire Rate upgrade to the turrets. Though I had a little problem at first because I forgot to set the max level, causing me to not be able to upgrade it. It is extremely easy to apply upgrades to anything that is tied to the ResourceSystem. I think that is one of the bigger drawbacks as it is right now, I can't really put this on an enemy, unless I create a Resource type of system for them to use, which is perfectly possible for me to do, but it would take some out of the way work that something player controlled wouldn't.
 
-‍
-
 I am still using Switch/Case statements, which aren't my favorite, but they seem to work okay for now. I know that I am also playing with fire using enums, but again, they are working for me at the moment. I don't see a need to change them right now. I also want to see how I can remove some of the logic to apply the upgrades from the Upgradeable objects themselves, and put it in the upgrade manager or something like that. I also will note that numbers are still way off, this isn't supposed to be balanced so a lot of the cost and upgrade values are WAY off and causing the in-game economy to collapse, but I'll fix it later in a different blog post where I focus on all that *FUN* stuff....
-
-‍
 
 Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

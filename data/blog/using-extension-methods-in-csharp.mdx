@@ -42,7 +42,7 @@ This would be awesome right? Well it turns out we can actually implement this o
 Random rand = new();
 
 public static T Random<T>(this List<T> list) {
-return list[rand.Next(0, list.Count)];
+    return list[rand.Next(0, list.Count)];
 }
 ```
 

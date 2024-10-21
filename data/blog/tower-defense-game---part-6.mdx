@@ -1,6 +1,6 @@
 ---
 title: 'Tower Defense Game - Part 6'
-date: '2023-05-24'
+date: '2023-05-23'
 tags: ['Game Development', 'Unity', 'CSharp']
 draft: false
 summary: Spawning Enemies with an Object Pool!
@@ -10,186 +10,110 @@ summary: Spawning Enemies with an Object Pool!
 
 Hello and welcome back to another blog post! Today I am going to attempt to make an Object Pool to handle the spawning/despawning of my enemies. I have worked though this problem with someone who knows a whole lot more about C# and Unity than I do. That project is still up on my repo, and while we never got to finishing it, we went over the why and how pretty thoroughly so I think with a little bit more research, I can recreate an Object Pool. I know Unity has it's own ObjectPool we can use, but I think it will be more fun to build one myself!
 
-‍
-
 ### **Dig the Whole Hole**
 
 I decided to take the half made script from my repo, so I don't have to start from scratch. Here is the GameObject pool before I start working on it. I am going to explain what it does, if not to teach those who don't know about Object Pools, then to Rubber Duck a little bit. ;)
 
-‍
-
 ```csharp
 [System.Serializable]
-
 public class GameObjectPool {
+    [SerializeField] private GameObject prefab;
+    [SerializeField] private int initialPoolAmount = 10;
+    [SerializeField] private int bufferAmount = 5;
+    [SerializeField] private Transform container;
+    Stack<GameObject> pool = new();
 
-[SerializeField] private GameObject prefab;
+    public GameObjectPool() {
+        InitializePool(initialPoolAmount);
+    }
 
-[SerializeField] private int initialPoolAmount = 10;
+    public GameObject Get(bool enableOnGet = true) {
+        if (pool.Count < bufferAmount) {
+            InitializePool(initialPoolAmount);
+        }
+        var gameObject = pool.Pop();
+        if (enableOnGet) gameObject.SetActive(true);
+        return gameObject;
+    }
 
-[SerializeField] private int bufferAmount = 5;
+    public void Return(GameObject gameObject, bool disableOnReturn = true)  {
+        if (disableOnReturn) gameObject.SetActive(false);
+        pool.Push(gameObject);
+    }
 
-[SerializeField] private Transform container;
-
-Stack<GameObject> pool = new();
-
-public GameObjectPool() {
-
-InitializePool(initialPoolAmount);
-
-}
-
-public GameObject Get(bool enableOnGet = true) {
-
-if (pool.Count < bufferAmount) {
-
-InitializePool(initialPoolAmount);
-
-}
-
-var gameObject = pool.Pop();
-
-if (enableOnGet) gameObject.SetActive(true);
-
-return gameObject;
-
-}
-
-public void Return(GameObject gameObject, bool disableOnReturn = true)  {
-
-if (disableOnReturn) gameObject.SetActive(false);
-
-pool.Push(gameObject);
-
-}
-
-private void InitializePool(int initializeAmount) {
-
-for (int i = 0; i < initializeAmount; i++) {
-
-var gameObject = UnityEngine.Object.Instantiate(prefab, container);
-
-Return(gameObject);
-
-}
-
-}
+    private void InitializePool(int initializeAmount) {
+        for (int i = 0; i < initializeAmount; i++) {
+            var gameObject = UnityEngine.Object.Instantiate(prefab, container);
+            Return(gameObject);
+        }
+    }
 }
 ```
 
 So I will explain from top to bottom, this isn't a terribly complex class so it should be easy to explain. An Object Pool (or in our case a Game Object Pool), is a place where we store objects. I will use the example we will end up using it for, spawning Enemies. Since calling `Instantiate` and `Destroy` can be very expensive, it is usually better to build a system in which we do that very minimally.
 
-‍
-
 There are 3 basic functions an ObjectPool must do, `Get` an object from the pool, `Return` an object to the pool, and `Initialize` the pool. This class is not a monobehaviour, so on it's constuctor I call Initialize.
 
 So I have a field `initialPoolAmount`, `Initialize` will Instantiate Objects into the pool until it meets its requirements.
 
-‍
-
 This ObjectPool makes use of the Stack Data Structure which s a LIFO (Last In First Out) data structure.
-
-‍
 
 The `Get` method does 2 things. First, it makes sure that the pool amount is higher than our `bufferAmount`. So if our buffer is 5, and we have 4 objects left in our pool when get an object, it will start to re-fill the pool with more objects, or more enemies. I also have here an option to set the gameObject to active on retrival, same thing when you return an object back to the pool. I use default parameters here so I don't have to specify true each time, only if I want it to be false. It then pops the gameObject from the stack, and returns it.
 
-‍
-
 The `Return` method is very simple. It asks if it should deactivate the gameObject, and does so, and then pushes that gameObject back to the stack.
-
-‍
 
 That is it for building the Object Pool, the only other thing to mention is that I use the [System.Serializable] attribute. This makes it possible for me to use this same script on anything that I want a GameObjectPool to work on. All I have to do is use this
 
-‍
-
 insert the script into the inspector field, and set the values I want.
-
-‍
 
 ### **Spawner!**
 
 So since I have the Object Pool mostly done, I just need to hook it up to some sort of spawning system. I began work on it before I started this post, just Instantiating an Enemy prefab using a Coroutine. Since I am shifting to an Object Pool, I will now call the `Get` method instead of Instantiate. I also went through the code to remove any reference to Destroy() on the Enemy. I now have an event that is broadcast everytime the enemy wants to die. The enemy spawner listens in on this and de-activates the enemy, and returns it to the pool.
 
-‍
-
 The spawner is also in charge of figuring out where to spawn the enemy, as well as giving them the direction to go towards. Like I mentioned in an earlier post, I might want the ability for enemies to run into turrets too, this step allows me to to do that in the future with ease if I want. I made another lambda expression that returns a random Transform from an array of transforms. I use this to both give a random `ChaseLocation`, as well as a random `SpawnLocation`.
-
-‍
 
 At first, I was having trouble getting the enemies to continuously spawn, but I realized with the way I have my code setup, it will only start the Coroutine at start and if it finishes spawning up to the max number of enemies, it won't spawn anymore. That is why I've included the section of code that will check to see if the enemy count is less than the max when an enemy dies, if this is the case then the Coroutine is called again and will continue to spawn enemies until it reaches that maximum.
 
-‍
-
 I was also having trouble getting the enemies to move toward a target since the serialized field I had in place wouldn't save when it was turned into a prefab. This lead me to making the random chase location. I think I could do a better job than what I did here, but I might wait to fix this later. I know this has already been a long post, but I am going to share my EnemySpawner script before I sign off for those who are interested in seeing it.
-
-‍
 
 ```csharp
 public class EnemySpawner : MonoBehaviour {
+    [SerializeField] private int maxEnemyCount;
+    [SerializeField] private float spawnDelayInSeconds;
+    [SerializeField] private GameObjectPool spawnPool;
+    [SerializeField] private Transform[] spawnLocations;
+    [SerializeField] private Transform[] chaseLocations;
+    private int enemyCount = 0;
 
-[SerializeField] private int maxEnemyCount;
+    private void Start() {
+        StartCoroutine(SpawnEnemies());
+        Enemy.OnEnemyDeath += Handle_EnemyDeath;
+    }
 
-[SerializeField] private float spawnDelayInSeconds;
+    private IEnumerator SpawnEnemies() {
+        while (enemyCount <= maxEnemyCount) {
+            yield return new WaitForSecondsRealtime(spawnDelayInSeconds);
+            SpawnEnemy();
+        }
+    }
 
-[SerializeField] private GameObjectPool spawnPool;
+    private void SpawnEnemy() {
+        var enemy = spawnPool.Get();
+        enemy.transform.position = GetRandomTransformFromArray(spawnLocations).position;
+        enemy.gameObject.GetComponent<MoveTowardsStaticTarget>().SetTarget(GetRandomTransformFromArray(chaseLocations));
+        enemyCount++;
+    }
 
-[SerializeField] private Transform[] spawnLocations;
+    private void Handle_EnemyDeath(object sender, Enemy e) {
+        var enemy = e.gameObject;
+        enemyCount--;
+        if (enemyCount < maxEnemyCount) {
+            StartCoroutine(SpawnEnemies());
+        }
+        spawnPool.Return(enemy);
+    }
 
-[SerializeField] private Transform[] chaseLocations;
-
-private int enemyCount = 0;
-
-private void Start() {
-
-StartCoroutine(SpawnEnemies());
-
-Enemy.OnEnemyDeath += Handle_EnemyDeath;
-
-}
-
-private IEnumerator SpawnEnemies() {
-
-while (enemyCount <= maxEnemyCount) {
-
-yield return new WaitForSecondsRealtime(spawnDelayInSeconds);
-
-SpawnEnemy();
-
-}
-
-}
-
-private void SpawnEnemy() {
-
-var enemy = spawnPool.Get();
-
-enemy.transform.position = GetRandomTransformFromArray(spawnLocations).position;
-
-enemy.gameObject.GetComponent<MoveTowardsStaticTarget>().SetTarget(GetRandomTransformFromArray(chaseLocations));
-
-enemyCount++;
-
-}
-
-private void Handle_EnemyDeath(object sender, Enemy e) {
-
-var enemy = e.gameObject;
-
-enemyCount--;
-
-if (enemyCount < maxEnemyCount) {
-
-StartCoroutine(SpawnEnemies());
-
-}
-
-spawnPool.Return(enemy);
-
-}
-
-private Transform GetRandomTransformFromArray(Transform[] transforms) => transforms[UnityEngine.Random.Range(0, transforms.Length -1)];
-
+    private Transform GetRandomTransformFromArray(Transform[] transforms) => transforms[UnityEngine.Random.Range(0, transforms.Length -1)];
 }
 ```
 

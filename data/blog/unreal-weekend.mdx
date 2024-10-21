@@ -1,0 +1,44 @@
+---
+title: 'An Unreal Weekend 😉'
+date: '2024-10-21'
+tags: ['CPP', 'Unreal', 'Game Development']
+draft: false
+summary: I spent a weekend getting familiar with Unreal Engine 5
+---
+
+# Back to Game Dev!
+
+For the past few months, I haven't been working on games, for no reason other than I kinda got distracted by some other programming languages, and to finish school! I just graduated earlier this week with my BS in Computer Science! I'm very much looking forward to starting my Software Engineering career! I've been messing around with Go and Rust lately, along with some Bash and Linux for some scripts and HTTP Servers. But now... _cracks knuckles_... it's time to **MAKE. SOME. GAMES.**
+
+If you were wondering, yes I _was_ working on a game with my friend Robby (Project Shmup; which I have listed on my portfolio still), but we've been working on our own things since then, and that's ok!
+
+For my return, I wanted to continue my path of learning new things and decided to take up Unreal Engine! This is a very popular engine and it uses C++, which is also a very popular language in the industry. I want to make sure I'm up to date on the tech used everyday.
+
+I'm following along with this course on Udemy that I bought like 5 years ago. I'm also following Unreal's Documentation page.
+
+So far it's been really fun to learn and a _lot_ easier than I thought it would be. I had originally thought that learning the C++ side of this would be a lot harder, and I know that I'm just starting off here, so I'm just in the honeymoon phase of learning a new thing, but so far so good!
+
+I'm also _pleasently_ surprised that Unreal has base support for Damage and Damage types! That is _SUPER_ cool!
+
+The course I'm following along with right now is building a top-down tank game where you control a tank and shoot out some missles at turrets that are trying to shoot you. I'm not sure how far this course will take this game, but I think I'm going to try and take it pretty far past the course and even turn it into a Steam game if I can.
+
+So far the player has control of the Tank, they can turn was A/D keys and move with W/S keys. I also have projectiles that can shoot from the tank and turrets, but I've bene having troubles with the engine as soon as I tried implementing this part of the game.
+
+I think it's just part of the learning curve, meaning I'm sprobably doing something wrong which is _why_ I'm getting these errors, but it's still quite annoying.
+
+I write `Projectile.h` and `Projectile.cpp`, build from my IDE (Rider) and then come back to UE to run, and things break.
+
+- Projectiles stop moving
+  - I've made sure that it has speed variables and it's being set properly in the files
+- Turrets & Player Tank often lose their reference to the `BP_Projectile`
+  - I can't re-set it, the editor acts almost as if the `BP_Projectile` and `Projectile.cpp` classes don't exist!
+
+I'm not sure why this is happening, but it's **_really_** frustrating, it's taking a lot of time trying to close the editor, re-build from IDE, open editor again, try other combinations and what not. I still have to figure out why this is happening, but these are the problems I'm running into currently
+
+I've also come to realize the relationship between C++ and C# in Game Devlopment. I know that Unity _used_ to support C++ as a programming language, and that they still use it as part of the engine behind-the-scenes. I open my UE project and I see that there are SO many C# projects and files for build and automation which is really cool to see. I'm hoping that this can be modified in some way so I can learn about the topic and get some experience using both C# and C++ to make a game!
+
+That's it for my first weekend with Unreal!
+
+Thank's for reading and have a great day!
+
+> Have you tried Unreal? Do you have any tips for a new user? If you've never tried it, why not?

@@ -1,6 +1,6 @@
 ---
 title: 'Tower Defense Game - Part 7'
-date: '2023-05-25'
+date: '2023-05-24'
 tags: ['Game Development', 'Unity', 'CSharp']
 draft: false
 summary: I got resources to generate!
@@ -10,39 +10,24 @@ summary: I got resources to generate!
 
 Today I decided to take a break from working on the Enemies, Turrets and the HUB. I wanted to get going on the resource generation for this game so I can start working on other features that rely on this to work.
 
-‍
-
 For the first time since I started this project, I am writing this post after I've already created the Resource Generation system, I kinda just entered **_The Zone_** and hammered it out, but I am still going to go over my thoughts and process, and a problem I encountered.
-
-‍
 
 ### **Need More Gold!**
 
 So I'll first explain what I had in mind going into building this Resource Generation System0. You have a `Generator` GameObject, it generates a specific amount of certain tier of resource at a specified rate. The generators report to a resource handler, and that then reports to the UI. That was the plan, and luckily enough, it actually went through pretty smoothly! Which is probably what contributed to me staying in **_The Zone_** for so long haha.
 
-‍
-
 So I did 2 things first. I created an Enum of `ResourceTier`s, which for now, is just roman numerals up to 5. I then created a `Generator` MonoBehaviour. It has a few fields editable in the inspector, which tier you want to generate, how much and the rate. I then decided to create a new class called `ResourceData`, this was made so I can encapsulate the data and pass it along inside the events. This class has 2 fields, `Tier`, and `Amount`. Right now they are both properties, but I know I am going to have to change these a bit when it comes to the later parts of this game.
-
-‍
 
 Within the `Generator` MonoBehaviour, when I generate a new resource, I use
 
-‍
-
 ```csharp
 private void Generate() {
-
-var resource = new ResourceData(tier, generationAmount * generationAmountMultiplier);
-
-OnResourceGenerated?.Invoke(this, resource);
-
+    var resource = new ResourceData(tier, generationAmount * generationAmountMultiplier);
+    OnResourceGenerated?.Invoke(this, resource);
 }
 ```
 
 Which creates a new ResourceData with the appropriate info from the generator and sends it off with the event, which the `ResourceHandler` listens to. Let's talk about that next.
-
-‍
 
 My `ResourceHandler` is also a MonoBehaviour (I know, I know.. there are a lot of MonoBehaviours, even though I said I wanted to try and avoid it). This class is responsible for listening in on all of the events triggered by the Generators. Since it is static, I don't need a reference to any of them specifically, rather I just reference the static event.
 
@@ -50,37 +35,23 @@ My `ResourceHandler` is also a MonoBehaviour (I know, I know.. there are a lot o
 
 This is where I made the 'problem'. There are a million different ways I could have handled this problem, do I think I did it the best and most optimal? Of course not, but I am pretty proud of what I managed to do. This was the first time I actually used a Dictionary, and that created some problems down the line. I have used Dictionaries before as parts of learning how they work and what they are, but never in a project like this. I decided to use a Dictionary for my resources because I did not want to create a scenario where I have hard coded SerializeFields that say `amountOfResourceTier1`, and all the way to tier 5. This is a bad idea for lots of reasons, but what bothered me the most with that way, is the fact that it would be harder to grow in Tier count if I wanted to go down that route.
 
-‍
-
 The dictionary consists of 2 things, the Key, which in my case is the Tier of resource, and the Value, which in my case was the total amount of a resource you had for that tier. I thought this was the perfect idea but I quickly became frustrated when I found out my code wasn't running.
 
-‍
-
 At first, my Generator Script was running perfectly fine, generating a resource at it's specified rate. However, when I included the `ResourceHandler` MonoBehaviour to the scene, the Generator would only generate once and stop. It took me quite some time of researching around, and fiddling with the code because there were no errors. Nothing to tell me why this was happening, but I knew it shouldn't be only because from my point of view, the `ResourceHandler` had nothing to do with the Generator, yet it was preventing it from Generating, which was very weird indeed.
-
-‍
 
 I wouldn't find out what was happening until I ran into my UI script for the resources and I realized what was happening. My UI script would also listen in on an event that was broadcast from the `ResourceHandler`, which would trigger every time the resource count was updated. As part of this, the UI script would update the array of TMP text objects one by one. This is what it looked like:
 
 ```csharp
 private void UpdateText(idictionary<GeneratorTier, float> data) {
-
-for (int i = 0; i < data.Count; i++)  {
-
-var amount = data.ElementAt(i).Value.ToString();
-
-var tier = data.ElementAt(i).Key.ToString();
-
-resourceCounts[i].text = (tier + ` : ` + amount);
-
-}
-
+    for (int i = 0; i < data.Count; i++)  {
+        var amount = data.ElementAt(i).Value.ToString();
+        var tier = data.ElementAt(i).Key.ToString();
+        resourceCounts[i].text = (tier + ` : ` + amount);
+    }
 }
 ```
 
 I'd like to point out that I'm using `resourceCounts.length()` here. This is something that I could make better, but for now I am leaving it this way, but back to the problem. It took me quite some time staring at this because I did not think this was a problem, especially since I wasn't getting any errors, BUT there most definetly is something wrong with this line.
-
-‍
 
 Little did I know, you don't get an error if you go outside the range of a Dictionary if you use `ElementAt()`. Since I was going off of the length of the text objects, which was greater than the number of elements in the dictionary, it would go out of range pretty quickly, and stop running. Now, I still don't understand why it prevented everything from working, and why no error was being generated, but I'm glad I was able to catch that.
 
@@ -88,8 +59,4 @@ Little did I know, you don't get an error if you go outside the range of a Dict
 
 After I switched the line to use the count of elements inside the dictionary, everything was fine. There is still a minor problem. As it stands now, my resource text objects are supposed to be one for each tier, and in order, but if a resource generates faster than it should be it will be added to the dictionary before the next, and appear on the text before it should. This problem shouldn't arise in normal gameplay since you shouldn't be able to skip tiers, but it still shouldn't be overlooked. I will fix it later though 😀.
 
-‍
-
 Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into? Interested in the Repo for this project? Find it [here](https://github.com/RyanFloresTT/TowerDefenseGame)!
-
-‍

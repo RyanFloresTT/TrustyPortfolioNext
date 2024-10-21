@@ -33,8 +33,8 @@ I then created a static class called `GameDataFileUtils` so that I can call meth
 
 ```csharp
 public static void Write(object obj, string filePath) {
-var jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, options);
-File.WriteAllText(filePath, jsonString);
+    var jsonString = JsonConvert.SerializeObject(obj, Formatting.Indented, options);
+    File.WriteAllText(filePath, jsonString);
 }
 
 ```
@@ -43,9 +43,9 @@ This is my `Write` method. Pretty simple, but it takes an object and a file path
 
 ```csharp
 public static void Add(GameData data, string fileName) {
-var contents = ReadFromJSON(fileName);
-contents.Add(data);
-Write(contents, fileName);
+    var contents = ReadFromJSON(fileName);
+    contents.Add(data);
+    Write(contents, fileName);
 }
 ```
 
@@ -53,25 +53,25 @@ This is the `Add` method. This takes in a GameData and a filepath. I will explai
 
 ```csharp
 public static void Remove(string gameName, string fileName) {
-var contents = ReadFromJSON(fileName);
-for (int i = 0; i &lt; contents.Count; i++) {
-if (contents[i].Name == gameName) {
-contents.Remove(contents[i]);
-break;
-}
-}
-Write(contents, fileName);
+    var contents = ReadFromJSON(fileName);
+    for (int i = 0; i < contents.Count; i++) {
+        if (contents[i].Name == gameName) {
+            contents.Remove(contents[i]);
+            break;
+        }
+    }
+    Write(contents, fileName);
 }
 ```
 
 This `Remove` method searches through the file linearly (which I could optimize), and removes the first element of the JSON file which matches the string input from the user.
 
 ```csharp
-public static List&lt;GameData&gt; ReadFromJSON(string filePath) {
-using StreamReader reader = new(filePath);
-var json = reader.ReadToEnd();
-List&lt;GameData&gt; data = JsonConvert.DeserializeObject&lt;List&lt;GameData&gt;&gt;(json);
-return data;
+public static List<GameData>; ReadFromJSON(string filePath) {
+    using StreamReader reader = new(filePath);
+    var json = reader.ReadToEnd();
+    List<GameData> data = JsonConvert.DeserializeObject<List<GameData>>(json);
+    return data;
 }
 ```
 

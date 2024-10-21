@@ -1,6 +1,6 @@
 ---
 title: 'Tower Defense Game - Part 8'
-date: '2023-05-24'
+date: '2023-05-25'
 tags: ['Game Development', 'Unity', 'CSharp']
 draft: false
 summary: Generators have upgrades now.
@@ -10,19 +10,11 @@ summary: Generators have upgrades now.
 
 Today is Upgrade day! The process of creating an upgrade system is most definitely going to take longer than a day or fit into one blog post so, while this post may be long, this isn't the end of this system just yet.
 
-‍
-
 When I first began thinking about how I wanted to approach this, I first thought to use Scriptable Objects. I did manage to get them working using Scriptable Objects at first, but I thought it would become overly complicated to try and get upgrades going on multiple things.
-
-‍
 
 Since my overall goal when programming is to make as much as I can re-usable, and for this particular project to make use of as little MonoBehaviours as possible, I decided to create an `UpgradeManager` system. This, like the Object Pool, is not a MonoBehaviour and is Serializable which means I can edit it on the inspector. I created a new line of code on the `Generator` class that makes it use this `UpgradeManager` class. Within this class I first started with scriptable objects being the way to go to create upgrades and put them on things that can be upgraded, but trying to cover all the edge cases started to get too complex a task for me. I was starting to split things up too much because if I had a `RateUpgrade` on a Generator that would increase the rate at which it generated, it shouldn't be able to do anything on an enemy. I was thinking too specific, and while I still could probably go back and make scriptable objects work, I ended up switching my upgrades to use an interface called `IUpgrade`.
 
-‍
-
 As I began tinkering, I also started to make 2 different types of upgrades to start off with the generators. One for the rate, and one for the amount. I created a class for each, both implementing the interface `IUpgrade`. They both did the same exact thing, the only difference being the event that was fired off each time an upgrade was made, so the rate upgrade would fire off a `OnRateChanged` event, while the amount would do its own. Both had its own max level, and current level to worry about, a `rateChangedPerLevel` and its own `LevelUp` method which also did the same exact thing. Since I knew I wasn't reusing code, I knew I was doing something wrong, and I could be doing it better. I then thought back to my resource generation and how I managed to get that going, so I followed some of the same thinking I did there.
-
-‍
 
 I realized that since both of these upgrades were passing a float value, I could merge the 2 classes and just call it `UpgradeFloat`, this would apply to anything where you wanted to increase the value of something by this float value. I also had to make an `UpgradeData` class to encapsulate the data so I can pass it through the event. This made it possible to create another enum of `GeneratorUpgrades` which lists `Rate, Amount`. On the `UpgradeManager`, you can select what the upgrade will be doing and exactly how many levels it can go up to, the current/starting level, and the rate the float changes each level (static). Thinking about it now, I could also be more specific and name this `UpgradeFloatAdditive` since that is what it is doing, and I could add a `UpgradeFloatMultiplicitive` where I want to multiply my values instead. My `UpgradeManager` class has a public method called `LevelUpUpgrade` in which it takes an `IUpgrade` interface as a parameter It checks to see if it is possible to upgrade (is it not null and not at max level), and calls the `Upgrade` method on that upgrade class.
 
@@ -30,39 +22,24 @@ Here is my `UpgradeFloat`
 
 ```csharp
 [Serializable]
-
 public class UpgradeFloat : IUpgrade {
+    public static event EventHandler<UpgradeData> OnFloatChanged;
+    [SerializeField] private GeneratorUpgrades type;
+    [SerializeField] float increasePerLevel;
+    [SerializeField] int maxLevel;
+    [SerializeField] int currentLevel;
+    private float totalIncrease = 0f;
 
-public static event EventHandler<UpgradeData> OnFloatChanged;
+    public void Upgrade() {
+        if (currentLevel < maxLevel) {
+            totalIncrease += increasePerLevel;
+            var data = new UpgradeData(type, totalIncrease);
+            OnFloatChanged?.Invoke(this, data);
+            currentLevel++;
+        }
+    }
 
-[SerializeField] private GeneratorUpgrades type;
-
-[SerializeField] float increasePerLevel;
-
-[SerializeField] int maxLevel;
-
-[SerializeField] int currentLevel;
-
-private float totalIncrease = 0f;
-
-public void Upgrade() {
-
-if (currentLevel < maxLevel) {
-
-totalIncrease += increasePerLevel;
-
-var data = new UpgradeData(type, totalIncrease);
-
-OnFloatChanged?.Invoke(this, data);
-
-currentLevel++;
-
-}
-
-}
-
-public bool IsAtMaxLevel() => currentLevel == maxLevel;
-
+    public bool IsAtMaxLevel() => currentLevel == maxLevel;
 }
 ```
 
@@ -70,81 +47,52 @@ Speaking about merging the upgrades, I also realize that I would need to split
 
 ```csharp
 [Serializable]
-
 public class GeneratorUpgradeManager : IManageUpgrades {
+    public static event EventHandler OnUpgradeBought;
+    [SerializeField] private UpgradeFloat upgradeRate;
+    [SerializeField] private UpgradeFloat upgradeAmount;
 
-public static event EventHandler OnUpgradeBought;
+    public void LevelUpRate() {
+        LevelUpUpgrade(upgradeRate);
+    }
 
-[SerializeField] private UpgradeFloat upgradeRate;
+    public void LevelUpAmount() {
+        LevelUpUpgrade(upgradeAmount);
+    }
 
-[SerializeField] private UpgradeFloat upgradeAmount;
+    public void LevelUpUpgrade(IUpgrade upgrade) {
+        if (!CanUpgrade(upgrade)) return;
+        upgrade.Upgrade();
+        OnUpgradeBought?.Invoke(this, EventArgs.Empty);
+    }
 
-public void LevelUpRate() {
-
-LevelUpUpgrade(upgradeRate);
-
-}
-
-public void LevelUpAmount() {
-
-LevelUpUpgrade(upgradeAmount);
-
-}
-
-public void LevelUpUpgrade(IUpgrade upgrade) {
-
-if (!CanUpgrade(upgrade)) return;
-
-upgrade.Upgrade();
-
-OnUpgradeBought?.Invoke(this, EventArgs.Empty);
-
-}
-
-public bool CanUpgrade(IUpgrade upgrade) => upgrade != null && !upgrade.IsAtMaxLevel();
-
+    public bool CanUpgrade(IUpgrade upgrade) => upgrade != null && !upgrade.IsAtMaxLevel();
 }
 ```
 
 Since I pass through the `UpgradeData`, through the event, which consists of the GeneratorUpgrade type and the value it is upgrading to, I listen to one specific event on the Generator class and use a switch/case statement to do something based on the 'type' of upgrade.
 
-‍
-
 ```csharp
 private void Start() {
+    isGenerating = true;
+    ListenToUpgradeEvents();
 
-isGenerating = true;
-
-ListenToUpgradeEvents();
-
-StartCoroutine(GenerateResources());
-
+    StartCoroutine(GenerateResources());
 }
 
 private void ListenToUpgradeEvents() {
-
-UpgradeFloat.OnFloatChanged += Handle_UpgradeFloat;
-
+    UpgradeFloat.OnFloatChanged += Handle_UpgradeFloat;
 }
 
 private void Handle_UpgradeFloat(object sender, UpgradeData e) {
-
-switch (e.type) {
-
-case (GeneratorUpgrades.Amount):
-
-IncreaseAmountMultiplierFromBase(e.value);
-
-break;
-
-case (GeneratorUpgrades.Rate):
-
-IncreaseRateMultiplierFromBase(e.value);
-
-break;
-
-}
-
+    switch (e.type) {
+        case (GeneratorUpgrades.Amount):
+            IncreaseAmountMultiplierFromBase(e.value);
+            break;
+        case (GeneratorUpgrades.Rate):
+            IncreaseRateMultiplierFromBase(e.value);
+            break;
+    }
 }
 ```
 
@@ -152,14 +100,8 @@ I honestly, don't like using switch/cases all that much, but I find it ok to use
 
 Since the Generator starts with a base multiplier for it's rate and amount of 1, every time the event is called, I set the multiplier equal to 1 + value. As I'm writing this I've also just realized 2 things wrong with this. 1, if I have 2 sources of upgrades going to 1 generator, it will take the value of the most recent, not combining them, I think this would be a quick fix, instead of setting the multiplier to the value directly, I can add the value to a different variable in which THAT is added to the multiplier. 2, not that it is wrong, but I've made a minor mistake, I have these classes all focused around the base amount or rate, not the multiplier, yet that is the value I am changing, this is of course simple enough to change, but it is something I need to be more careful about.
 
-‍
-
 The last thing I do as a placeholder to test that the upgrades are working is set up some buttons that call some methods on the `Generator` class. It calls either `UpgradeRate` or `UpradeAmount`, which tells the upgrade manager on it to level up the appropriate upgrade, then that goes through to validate that it is possible (which I will also be adding onto in the next blog post where we will make it possible to purchase upgrades with resources), and then performs the upgrade. As with everything I think I could do better, but for my first time building something like this, I think I've done a pretty good job with it so far. I know I'll end up making improvements over time, little tweaks, but I don't think it'll go through any major changes (hopefully).
 
-‍
-
 2 things that I can immeditately say, is that I should probably take a long look my my scripts and clean them up a bit. My generator class has too many methods in which it applied upgrades to it's values, I know I can do better so I will either take the time away from a blog post, or make a blog post out of it we shall see, but I think that wraps it up for this post! I also should note how absolutely terrible my balance is right now, the math on these upgrades are not good, but that also is another day for another blog post! I would love to write a 100 page essay on how I solved this problem, but I don't think it would be good for the readers.
-
-‍
 
 Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

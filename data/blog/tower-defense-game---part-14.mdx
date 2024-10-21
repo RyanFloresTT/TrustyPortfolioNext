@@ -10,50 +10,31 @@ summary: Generator Upgrades!
 
 ... Takes 90% of the time. I just completed my last feature I wanted in this game which was the Ability system. There are still a few things that I'd like to do to better polish up that and the other systems. There are a few reasons that play into why I've taken a while to upload a new blog post. To be quite honest the biggest reason is that Diablo 4 came out so I've been playing that a good amount haha. I'm also preparing for my first child to enter this world any day now! Exciting stuff! Then there's also the fact that this first polishing cycle has been very light and not very interesting to talk about.
 
-‍
-
 I've recently talked with someone who has been a HUGE help in my learning experience, sort of a mentor, and they taught me about delegates and the difference between the the things we can do with delegates, such as `EventHandler`, `Func` and `Action`. EventHandler is used to interact with the object that invokes the event. Func is used when you want a return type, and Action for when you want to do neither of those but still want to pass in some sort of data.
 
-‍
-
 So I adjusted most of my events that were using EventHandler, to now use Action, which is the appropriate one to use in this case. I also created a Game Over animation which just adjusts the alpha of a few canvas items. I created a script that waits for the `OnHUBDestroyed` event to go off, which then toggles the container of UI elements to turn on and plays the animation.
-
-‍
 
 I also created this ScriptableObject to load different scenes, and I actually really like what I've made here. It is super simple and it's able to be used for any scene. I made it a ScriptableObject so that I can put the same one on all buttons and I don't need to put another monobehaviour component on each button that wants to use this script. The button calls either of these 3 methods.
 
 ```csharp
 [CreateAssetMenu(fileName =`SceneLoader`, menuName = `SceneLoader/SceneLoader`)]
-
 public class SceneLoadButton : ScriptableObject {
+    public void QuitGame() {
+        Application.Quit();
+    }
 
-public void QuitGame() {
+    public void LoadSceneOnIndex(int index) {
+    SceneManager.LoadScene(index);
+    }
 
-Application.Quit();
-
-}
-
-public void LoadSceneOnIndex(int index) {
-
-SceneManager.LoadScene(index);
-
-}
-
-public void RestartCurrentScene() {
-
-var currentScene = SceneManager.GetActiveScene();
-
-var sceneIndex = currentScene.buildIndex;
-
-SceneManager.LoadScene(sceneIndex);
-
-}
-
+    public void RestartCurrentScene() {
+        var currentScene = SceneManager.GetActiveScene();
+        var sceneIndex = currentScene.buildIndex;
+        SceneManager.LoadScene(sceneIndex);
+    }
 }
 ```
 
 This is a short and sweet blog post today, expect that for the next few blog posts as I slowly polish this game and try to do some balancing. I'll make sure to show my progress as I do polish things though!
-
-‍
 
 Thanks for reading! Let me know what you thought of this post down below! How are your projects going? What problems are you currently running into?

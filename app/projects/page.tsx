@@ -21,7 +21,14 @@ export default function Projects() {
                 title={d.title}
                 description={d.description}
                 imgSrc={d.imgSrc}
-                href={d.href}
+                blog={d.blog}
+                steam={d.steam}
+                github={d.github}
+                demo={d.demo}
+                unity={d.unity}
+                unreal={d.unreal}
+                itchio={d.itchio}
+                notion={d.notion}
               />
             ))}
           </div>

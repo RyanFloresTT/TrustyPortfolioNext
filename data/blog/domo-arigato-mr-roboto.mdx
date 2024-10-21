@@ -28,20 +28,13 @@ Within this repo, I found a class called `GeneralCommandsModule` in which I fo
 
 ```csharp
 public class GeneralCommandsModule : ModuleBase<SocketCommandContext> {
+    [Command(`DYEL`)]
+    [Summary(`Responds with the Lifting Day!`)]
+    public Task DYELReplyAsync(int offset = 0) {
+        WorkoutDay todaysWorkout = DYEL.GetWorkout(offset);
 
-[Command(`DYEL`)]
-
-[Summary(`Responds with the Lifting Day!`)]
-
-public Task DYELReplyAsync(int offset = 0) {
-
-WorkoutDay todaysWorkout = DYEL.GetWorkout(offset);
-
-// Example: if(Context.User.id == 284370066873647105) { DoTheSpecialRobbyStuff(); }
-
-return ReplyAsync($`Damn Right I Do! Today's focus is {todaysWorkout.Type} Round #{todaysWorkout.Round}`);
-
-}
+        return ReplyAsync($`Damn Right I Do! Today's focus is {todaysWorkout.Type} Round #{todaysWorkout.Round}`);
+    }
 
 }
 ```
@@ -66,35 +59,21 @@ I created a new data type called `JokeData` in which I created a bunch of prop
 
 ```csharp
 public class Joke {
+    public static async Task<JokeData> GetNewJokeAsync(string user) {
+        string URL = $`https://api.chucknorris.io/jokes/random?name={user}&category=dev`;
+        HttpClient client = new HttpClient();
 
-public static async Task<JokeData> GetNewJokeAsync(string user) {
-
-string URL = $`https://api.chucknorris.io/jokes/random?name={user}&category=dev`;
-
-HttpClient client = new HttpClient();
-
-try {
-
-var response = await client.GetAsync(URL);
-
-string jsonResponse = await response.Content.ReadAsStringAsync();
-
-var joke = JsonConvert.DeserializeObject<JokeData>(jsonResponse);
-
-return joke;
-
-}
-
-catch (Exception e) {
-
-Console.WriteLine(e.Message);
-
-return null;
-
-}
-
-}
-
+        try {
+            var response = await client.GetAsync(URL);
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            var joke = JsonConvert.DeserializeObject<JokeData>(jsonResponse);
+            return joke;
+        }
+        catch (Exception e) {
+            Console.WriteLine(e.Message);
+            return null;
+        }
+    }
 }
 ```
 
@@ -104,15 +83,10 @@ As you can see, this class has one method called `GetJokeAsync` which takes in a
 
 ```csharp
 try {
-
-var response = await client.GetAsync(URL);
-
-string jsonResponse = await response.Content.ReadAsStringAsync();
-
-var joke = JsonConvert.DeserializeObject<JokeData>(jsonResponse);
-
-return joke;
-
+    var response = await client.GetAsync(URL);
+    string jsonResponse = await response.Content.ReadAsStringAsync();
+    var joke = JsonConvert.DeserializeObject<JokeData>(jsonResponse);
+    return joke;
 }
 ```
 
