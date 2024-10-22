@@ -1,0 +1,43 @@
+---
+title: 'How I fixed my problem with Unreal Engine'
+date: '2024-10-22'
+tags: ['CPP', 'Unreal', 'Game Development', 'Problem Solving']
+draft: false
+summary: It was my fault 😛
+---
+
+Right after the other day, I had ranted about how I almost gave up on Unreal Engine because of a dumb issue I was having. Luckily, just after talking to some friends about it, I figured out what was wrong.
+
+I got back on my computer after the day had ended to try and wrangle with the bug that I thought just **_HAD_** to be on UE's side. (Weird right? I thought I was right, and the machine was wrong?)
+
+I really did know that it was me that was wrong, I just didn't know where to look, I thought I was building the project in a weird way, or that I had done something that would cause something to break.
+
+I thought to myself that I should start in my `projectile.cpp` class because I had coded in some projectiles with some speed, so they _should_ have been moving, but everytime I shot one, it would just freeze in place. I looked through the spot where the bullet spawns, and boom... can you find my error?? 🤦‍♂️
+
+```cpp
+void ABasePawn::Fire()
+{
+    if (!ProjectileSpawn) return;
+
+    FVector Location = ProjectileSpawn->GetComponentLocation();
+    FRotator Rotation = TurretMesh->GetComponentRotation();
+
+    GetWorld()->
+        SpawnActor<AProjectile>(
+            ProjectileClass,
+            Location,
+            Rotation);
+
+    AProjectile* Projectile = GetWorld()->
+                                SpawnActor<AProjectile>(
+									ProjectileClass,
+									Location,
+									Rotation);
+
+    Projectile->SetOwner(this);
+}
+```
+
+I just realized that I was spawning **_TWO_** bullets at the exact same time! They would collide with each other and stay in the air, giving me reason to believe that they just weren't moving at all. I've since fixed the bug and it works just fine.
+
+> Have you ever had an embarrasing bug fix? What was it?
