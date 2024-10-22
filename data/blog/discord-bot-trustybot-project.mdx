@@ -1,0 +1,27 @@
+---
+title: 'Discord Bot - TrustyBot'
+date: '2023-07-03   '
+tags: ['CSharp', 'Bot', 'Async', 'Project']
+draft: false
+summary: A Discord bot made by yours truly using C#.
+---
+
+Welcome to my journey of creating TrustyBot, my very own Discord bot! While this may be a project overview, I have a blog post series where I share my experiences and discoveries as I dive into the world of bot development.
+
+This all started when I received an invitation to contribute to a Discord bot project mentored by a friend. Little did I know that this opportunity would ignite my passion for coding outside of game development in Unity.
+
+### **Key Highlights:**
+
+1. Joining the Discord bot project introduced me to new challenges and an entirely different programming landscape. It was my first time working on a C# project that wasn't a game. The excitement and anxiety of contributing to a public project pushed me to learn and grow as a developer. I've also decided to take this further and learn some more .NET frameworks, and eventually the want to try out something like WPF.
+
+2. I took on the task of adding a new command to the bot - a personalized joke command. I used the Chuck Norris API, which, with the use of the slash commands, the bot tell jokes tailored to the user.
+
+3. Extension methods proved to be a game-changer in my programming arsenal. I discovered how to extend the functionality of the \"List\" class to retrieve random elements, making my code cleaner and more efficient. Moreover, I utilized extension methods to handle various JSON data files with ease and versatility.
+
+4. To organize and manage game data, I embraced the power of C# 9 Records. I created a \"GameData\" record to store information about games in a structured and efficient manner. Moreover, I built the \"GameDataFileUtils\" static class, utilizing Records, to seamlessly read and write JSON data related to games. The simplicity and power of Records allowed me to focus on the bot's core functionalities. However, this wasn't the end all solution since this limited myself to use the \"GameDataFileUtils\" class to manipulate JSON files that would only contain \"GameData\" data. So, using Extension Methods and Inheritance, I renamed \"GameDataFileUtils\" to \"JSONFileUtils\" and managed to create a system where I can manipulate JSON files and convert them into objects using JSON serialization as long as the data within the JSON file is a record which uses the base class I created.
+
+I don't think I am really going anywhere specific with this Discord Bot, but I like to use it for random commands and practice my programming outside of Unity. I like to make random commands that I can mess around with my friends with or similar uses. It was a really fun bit of work I did outside of Unity, and I'd like to return to it at some point.
+
+My journey with TrustyBot has been a huge success, and I'm incredibly proud of what I've accomplished so far. Learning to make HTTP requests using C# and becoming more familiar with async/await were valuable skills that I gained throughout this adventure. Though I'm still waiting for my Pull Request to be approved and merged into the main branch, the experience has motivated me to create my own Discord bot for my personal Discord channel.
+
+Thank you for joining me on this exciting ride, and I hope my experiences inspire others to embark on their own coding adventures. If you're curious about the TrustyBot project and want to explore the code, feel free to check out the GitHub repository

@@ -1,0 +1,49 @@
+---
+title: 'Crystal Chaos'
+date: '2023-06-27'
+tags: ['CSharp', 'Unity', 'Game Development', 'Project']
+draft: false
+summary: A tower defense game made in Unity
+---
+
+## **Crystal Chaos**
+
+Crystal Chaos is a game that I made using C# and the Unity Engine. I came up with this idea after failing to fulfill my passion to work on my \"Project Swingy Swing\". I wanted to make something simple and a game of a genre I knew I had experience in. I think I cemented a lot of what I've already learned up to this point in this project, I made use of other pieces of code like my Object Pool for spawning enemies and handling other instantiations, I also made use of my prior experience coding to create the behaviors you see in game. I was very excited to work on this game, it felt like everything was coming naturally, and though I didn't plan as well as one would hope, I still managed to build a playable game that has a lot of potential.
+
+Crystal Chaos is not finished, but it is in a playable state. I am still working on adding sounds, cleaning up a few things, bug fixes, and a few rewords of systems, most notably the spawning system. Even though this game is not finished, I'm more than happy to suggest people to look at what I've built so far to get a good sense of what I've been working on and where I'm headed with the project.
+
+### **Scope**
+
+I started planning this game early on, but I didn't use a kanban board or any other agile methodologies. I made this decision mainly because I had just gone through creating a whole project's kanban board (Project Swingy Swing) and still felt completely lost on what to do. I am not saying that kanban is bad or is the cause of the downfall of that project, I know that it was because of the lack of passion I had for what I was trying to create, but I know I wanted to be a little more free with what I was creating with this project. That being said, I am already planning a few projects after this using agile methodologies like planning poker and the likes, stay tuned for what's to come!
+
+At the core of this game, I know I wanted it to be some sort of tower defense game. Early on in my concepts, I was thinking to incorporate some robots that the player would control, think an RTS. You would command these units to go collect materials, use those materials to upgrade buildings and at some point, upgrade the units to attack. I had this thought because I had just finished creating an RTS controller and I thought it would be cool to use it as part of this project too. If you've played the game then you know this is not what I decided to do. I thought it would be too much of a hassle to have the player continuously go back and forth between these resource generators, so I thought to just have the units be offensive only, but ultimately decided to scrap that entire idea and do a normal tower defense game.
+
+Though not straying far from the vanilla experience of a tower defense game, I did decide to incorporate an ability system. This system would allow you to unlock certain abilities like a lightning strike or a bombing run on the enemies, letting the players choose when and where to do damage in case of an emergency. As I am writing this, the ability system is partially bugged and I only have the lightning strike, and it is incredibly over powered (nothing is tuned properly either haha). When conceptualizing the ability system, I also wanted to have a place where players could upgrade their spells, I think with the way I've written my code, this would be as easy as making the UI and hooking up the components together, I just haven't done so yet.
+
+### **Technical Details:**
+
+This game makes use of an Object Pool in a few scenarios and most notably is the Spawning System. I had a lot of fun learning about Object Pools with a mentor of mine and once we finished building one together, I knew I'd be able to find applications for it everywhere. I now know that it is far more expensive to be instantiating an object every-time you want to create a new one, and destroying it when you don't, then it is to just move an object to and from an object pool. It is one of the many 'uber-powerful' tools I know I can count on when building games. As it stands right now, the Spawning System is very bare bones, but I've built it in a way that I can manipulate it very easily when the time comes to do so. Speaking on these powerful tools, Scriptable Objects are just amazing.
+
+I have been reading up on and watching Unite's to learn more about ScriptableObjects, as well as talking to my mentor about it. I think that ScriptableObjects are my single most favorite tool to use in Unity. This project doesn't make use of much of them how I'd like because I started to learn about the sheer power of these things at the tail end of this project and I didn't want to redo half of my code to support what I wanted to do with them, but I wanted to mention it here because of what I think I could do with scriptable objects.
+
+I actually do use SO's for one thing in Crystal Chaos, and that is for the sounds and music. I haven't populated the SFX just yet and hooked it up to any of the enemies or UI, but I have already set it up in a way that will allow me to do it with ease.
+
+I know I could upgrade my Spawning System using SO's by creating a sort of \"Wave\" scriptable object where I keep the wave data for each wave saved in the scriptable object and then go through each wave. Using this sort of system can lead me down a rabbit hole of creating boss waves or different enemy types of which spawn on different numbered waves, or combinations of certain enemies. The choices are near limitless.
+
+### **Things I Learned:**
+
+I continue to compare this project to my previous \"Project Swingy Swing\" because this was the one that followed it and because I never felt more different between 2 projects. For my \"Project Swing Swing\", I had learned that sometimes you lose passion for a project and that's ok, sometimes you have a cool idea and you get excited but when it comes to execution, plans can still fall short. This project had reeled me right back in with the amount of fun I was having. I continued to create blog posts each time I ran into a problem and it was a whole cycle and I loved every second of it. Again, Cyrstal Chaos is not finished, and whether or not I end up finishing it, I am proud to have it posted on my portfolio to show off just because of the amount of fun I was having creating what I've had so far. These 2 projects are polar opposites in pretty much every aspect.
+
+On a technical note, I'll be honest with myself and say that I didn't really learn any new concepts or methods while I was developing this game, but I did use all of what I've learned so far. I think it's fair to say I used this project to cement what I've already.
+
+### **Future Enhancements:**
+
+Since this game is not finished, I know that there is so much more that I can do to enhance this game. There are a few things that I am working on, like getting the SFX working, UI sounds and making it so when an enemy dies, there is a sound effect. There are features that need to be completed like the Enemy Spawning and Player Ability Systems, both of which makes use of scriptable objects. I've created a menu and a death screen so there is a playable gameplay loop, but the game is not balanced in the slightest so that is one other enhancement I can do if I want to take the time and balance all these values.
+
+### **Conclusion:**
+
+This game was really fun for me to work on, a breath of fresh air and a really good motivator to keep me going. I think a lot of that had to do with the fact that I did NOT learn anything new here and tried to apply it to a project. I think too often when I learn new things, I can get held up with figuring out how to apply what I've learned and it takes a lot of time and energy. Last project I was trying to learn so many new things at once that I didn't know what to do and didn't know where to start, but since I didn't learn much during this project, I was able to work away with what I already knew and code away what I wanted to code.
+
+I'm not sure how much more I will contribute to this game, and though it is an unfinished project, I'm still proud of what I was able to accomplish here. I am of course moving on to other projects, some of which are already in the works, other are being planned. I know I have a lot more to learn and I can't wait to apply what I've learned about ScriptableObjects in my future games.
+
+Thanks for reading and I hope you've enjoyed, have a great day!",

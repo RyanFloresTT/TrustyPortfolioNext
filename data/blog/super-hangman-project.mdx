@@ -1,0 +1,29 @@
+---
+title: 'Super Hangman'
+date: '2024-05-05'
+tags: ['CSharp', 'Unity', 'Game Development', 'Project', 'Release']
+draft: false
+summary: My very first game released on Steam!
+---
+
+Super Hangman is a game created by my friend Robby and myself. We worked together to create a hangman game and released it on steam!
+
+It was a really fun experience, this is my second time working with Robby on a game, we had previously worked together on our GBJam11 Entry, which you can read more about [here](https://www.trustytea.me/Projects/gbjam11---hopscape).
+
+At first, Robby was building this game alone as another side project to learn from, but realized that there might be potential for us to work together and potentially release on Steam.
+
+We continued to work on the game, making it so we had the base game in a playable state, at which point we decided to integrate Steamworks.
+
+Steamworks is natively in C++, and using Unity, we use C# so we relied on some libraries to help us out. At first we were using [Facepunch Studio’s implementation](https://github.com/Facepunch/Facepunch.Steamworks) of Steamworks for C#, but ran into a few problems.
+
+Facepunch Studio’s implementation is super easy to understand and read from their docs. We were able to quickly get our app connected to Steam and make sure that achievements were working. The trouble for us came when it was time to run the game in something other than Windows. Apparently there is some trouble with Facepunch Studio’s implementation running in other OSs so after fiddling with it and trying to come up with a solution, we decided to try the other reccomended option which was Steamworks.NET.
+
+[Steamworks.NET](http://Steamworks.NET) is **_much_** more verbose than Faccepunch Studio’s version. It’s almost like writing in C++. Variable and Method names are named after the C++ implementation, and at first I thought there were no docs for this, but we came to realize that because of the same names, we had to read off the original docs.
+
+At first [Steamworks.NET](http://Steamworks.NET) took us a little extra time to get stuff going, but it all worked out in the end and we were able to get our leaderboards up and running just fine for the game. We also included some stat tracking so that we could create some achievements for hitting certain milestones for those stats.
+
+Our game features achievements and a leaderboard for those who like to be a little competitive. See how big you can get your score before losing all your life!
+
+Check out our game [here](https://store.steampowered.com/app/2910810/Super_Hangman/)!
+
+_Our game features some generative AI in the form of the pictures you see after each guess of the word._

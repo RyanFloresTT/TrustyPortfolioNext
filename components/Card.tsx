@@ -60,16 +60,38 @@ const Card = ({
           )}
         </h2>
         <p className="prose mb-3 max-w-none text-gray-500 dark:text-gray-400">{description}</p>
+
         {blog && (
           <Link
             href={blog}
-            className="text-base font-medium leading-6 text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+            className="mb-4 block text-base font-medium leading-6 text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
             aria-label={`Link to ${title}`}
           >
             Learn more &rarr;
           </Link>
         )}
-        <div className="mt-auto inline-flex gap-2">
+
+        <div className="mt-auto flex flex-wrap gap-2">
+          {github && (
+            <Button color="secondary" href={github} target="_blank">
+              <Github />
+              Source
+            </Button>
+          )}
+
+          {demo && (
+            <Button href={demo} target="_blank">
+              <Gamepad />
+              Demo
+            </Button>
+          )}
+
+          {itchio && (
+            <Button color="secondary" href={itchio} target="_blank">
+              <Itchio />
+              Play Now!
+            </Button>
+          )}
           {steam && (
             <Button href={steam} target="_blank">
               <Steam />
@@ -88,27 +110,6 @@ const Card = ({
             <Button href={unreal} color="primary" target="_blank">
               <Unreal />
               Download
-            </Button>
-          )}
-
-          {demo && (
-            <Button href={demo} target="_blank">
-              <Gamepad />
-              Demo
-            </Button>
-          )}
-
-          {github && (
-            <Button color="secondary" href={github} target="_blank">
-              <Github />
-              Source
-            </Button>
-          )}
-
-          {itchio && (
-            <Button color="secondary" href={itchio} target="_blank">
-              <Itchio />
-              Play Now!
             </Button>
           )}
 

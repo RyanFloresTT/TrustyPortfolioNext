@@ -1,0 +1,19 @@
+---
+title: 'Pong Remake'
+date: '2022-12-31'
+tags: ['CSharp', 'Unity', 'Game Development', 'Project']
+draft: false
+summary: A remake of the famous Pong game.
+---
+
+I wanted to create a start menu and ending screen for this game, but I only managed to create a start screen. This was my first time in Unity using C# in a long time and I wanted to get comfortable with it before moving on to bigger projects. I also decided it was time to learn a little more about the Game States, enums, and the use of a GameManager. I used enums to store different states for the game like \"Playing\", to tell the scene that the game was in its Play state and could do what it needed to do.
+
+In this project, I had a hard time trying to figure out how to hide the UI elements from the player before the game started, without actually disabling them. Disabling them would remove the script functionality I had on the UI. Looking back at it now, I realize I could have done without putting scripts on the UI elements themselves, and storing them elsewhere. Still, I found that I could use CanvasGroups to reduce or increase the opacity of a group of UI elements based on what state the game was in.
+
+I was also having a lot of trouble figuring out why the ball would randomly shoot straight up or straight down, causing long moments of waiting for the ball to reach either paddle. I wanted to avoid this, so I did a little research and found the Mathf.Clamp function, but I didn't know where to place it at first. The way I reset the ball is, every time the ball hits one of the Out Of Bounds sides to the left or right, it's velocity is reset, its position is reset, and after a second, given a new velocity in a random Vector2. I got a random value for each of the (x,y) in the vector2 by using Random.Range(-1f, 1f), this would generate a value between -1 and 1. This would turn out problemeatic when the ball would go straight up, meaning that the X value was near or equal to 0. But I decided to clamp the Y value, so that it couldn't go straight up, but only within either -.5 to 0, or 0 to .5. As I'm writing this I am just realizing that I could have just modified the Random.Range for the Y value to \"Random.Range(-.5f, .5f), this would have been the same. I will keep this in mind for the future.
+
+Each time the ball hits a paddle, the bounceCount is incremeneted, and once the bounceCount reaches a certain point, the ball will start glowing.
+
+There is no end in this Pong remake, you must play FOREVER.
+
+Check out a live demo of the game on my GitHub pages [here](https://ryanflorestt.github.io/Pong-Remake/WebGL/index.html)
