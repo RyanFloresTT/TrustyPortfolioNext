@@ -11,8 +11,8 @@ const projectsData: IProject[] = [
     title: 'Project Shmup',
     description: 'Another attempt at the Roguelike genre.',
     imgSrc: '/static/images/projects/shmup.png',
-    github:
-      'https://chiseled-harrier-6f9.notion.site/Shmup-Code-Documentation-a472ac554476456baabfe83d99637f99?pvs=4',
+    notion:
+      'https://chiseled-harrier-6f9.notion.site/Shmup-Code-Documentation-a472ac554476456baabfe83d99637f99',
     blog: '/blog/project-shmup-project',
   },
   {
@@ -20,8 +20,6 @@ const projectsData: IProject[] = [
     description: 'My very first game released on Steam!',
     imgSrc: '/static/images/projects/shangman.jpg',
     steam: 'https://store.steampowered.com/app/2910810/Super_Hangman/',
-    notion:
-      'https://chiseled-harrier-6f9.notion.site/Shmup-Code-Documentation-a472ac554476456baabfe83d99637f99',
     blog: '/blog/super-hangman-project',
   },
   {
