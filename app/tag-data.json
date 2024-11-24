@@ -1,5 +1,6 @@
 {
-  "csharp": 37,
+  "csharp": 38,
+  "tooling": 5,
   "aspnet": 3,
   "web-development": 3,
   "automation": 1,
@@ -21,7 +22,6 @@
   "azure": 1,
   "leader": 2,
   "gamejam": 1,
-  "tooling": 4,
   "fundamentals": 2,
   "imgui": 1,
   "release": 1,

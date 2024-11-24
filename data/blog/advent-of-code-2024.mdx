@@ -1,0 +1,101 @@
+---
+title: 'Advent of Code 2024!'
+date: '2024-11-24'
+tags: ['CSharp', 'Tooling']
+draft: false
+summary: Will you be participating this year?
+---
+
+## Hello and Welcome
+
+I haven't made many commits in the past week or so, but that doesn't mean I haven't been coding! I've been working on a few projects as well as doing some of last years Advent of Code! I had never heard about it before this year, and I'm really excited to be trying it out this year. It's a really fun take on problem solving. There's a whole storyline with it which makes it a little nicer than doing your typical LeetCode problems.
+
+As I was doing the first couple of days, I quickly realized that I was doing the same thing over again.
+
+- Opening a file
+- Reading each line
+- Operating on the line and getting some data from it
+- Totaling the results from each line
+
+Since this was happening each day, I decided to create a class that would help me get things going faster. Little did I know that not all days would need me to parse each line, but it was still frequent enough that it was still worth it to make.
+
+Here is the class and I'll go over my thoughts on it.
+
+```cs
+public static class LineUtils
+{
+	public static async Task ProcessFileLinesAsync<T>(string directoryName, string filename, Func<string?, Task<T>> processLine, Func<T, Task> handleResult)
+	{
+	    try
+	    {
+	        using StreamReader sr = new($"{GetWorkingDirectory()}{directoryName}/{filename}");
+	        var line = await sr.ReadLineAsync();
+
+	        while (line != null)
+	        {
+		        var res = await processLine(line);
+	            await handleResult(res);
+	            line = await sr.ReadLineAsync();
+	        }
+	    }
+	    catch (Exception e)
+	    {
+		    Console.WriteLine("Exception: " + e.Message);
+		}
+	}
+}
+```
+
+So I had originally had this as a non-generic function which just returned an integer, but I changed it when I realized I needed to return different values. This opens up a a file based on the filename. I also created a different helper class that would get my current working directory. I switch between my laptop and desktop frequently enough that it was getting annoying changing my paths to the project.
+
+After the filename parameter, I have a `processLine` func which takes in a string and returns T. This is the method that we will be using to parse each line with. For example, on Day1, I had to do something like this for PartOne.
+
+```cs
+static Task<int> PartOneHelper(string? line)
+{
+    var lineSum = 0;
+
+    // Find the first numeric character from the left
+    for (var i = 0; i < line.Length; i++)
+    {        if (!char.IsDigit(line[i])) continue;
+        lineSum += int.Parse(line[i].ToString()) * 10;
+        break;
+    }
+    // Find the first numeric character from the right
+    for (var i = line.Length - 1; i >= 0; i--)
+    {
+	    if (!char.IsDigit(line[i])) continue;
+        lineSum += int.Parse(line[i].ToString());
+        break;
+    }
+}
+```
+
+Then, all I have to do is
+
+```cs
+public static async Task<int> PartOne(string filename = "input.txt")
+{
+    var sum = 0;
+
+    await LineUtils.ProcessFileLinesAsync("Day1", filename, PartOneHelper, result => sum += result));
+
+	return sum;
+}
+```
+
+I use a default parameter here because I also run Unit Tests using NUnit which specify a different file, usually `example.txt`.
+
+The last part of the function is the `handleResult` func. This usually ends up being an anonymous function like you see above
+
+```cs
+result => sum += result
+```
+
+So after each parse, it will return what came of `PartOneHelper` and add it to the sum, which when we finish with parsing all lines, returns the entire sum.
+
+This was very helpful because it took away the need to think about opening a file and what not, and allowed me to focus on the problem at hand, what I needed to do to each line and what the end result would look like.
+
+I'm going to be _hopefully_ using this during this year's Advent of Code, as long as they don't change up the format and we'd still be reading lines and returning values.
+
+I really loved the challenge and puzzle solving that this event gives, I'm excited to hop into it this year. Will you be participating?
