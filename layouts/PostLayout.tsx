@@ -10,7 +10,7 @@ import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 
-const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
+const editUrl = (path) => `${siteMetadata.siteRepo}/${path}`
 const discussUrl = (path) =>
   `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}&text=Check%20out%20this%20blog%20post!`
 
@@ -30,7 +30,7 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
-  const { filePath, path, slug, date, title, tags } = content
+  const { repoName, path, slug, date, title, tags } = content
   const basePath = path.split('/')[0]
 
   return (
@@ -100,7 +100,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                   Discuss on Twitter
                 </Link>
                 {` • `}
-                <Link href={editUrl(filePath)}>View on GitHub</Link>
+                <Link href={editUrl(repoName)}>View on GitHub</Link>
               </div>
               {siteMetadata.comments && (
                 <div

@@ -1,0 +1,119 @@
+---
+title: 'My First Contribution: Adding Llama Model Support and Improving Tests'
+date: '2024-11-24'
+tags: ['CSharp', 'Tooling', 'Open Source', 'Git']
+draft: false
+summary: Will you be participating this year?
+repo: 'https://www.github.com'
+---
+
+#### Introduction
+
+I've always thought about contributing to a project for the first time, but it can be pretty daunting—especially when I hear people say, "Contribute to tools you use." I’d check out .NET's GitHub page, but even the `good first issue`s often seemed overwhelming.
+
+A friend then introduced me to a website called [up-for-grabs](https://up-for-grabs.net/), which lets you filter open-source projects by tags. After filtering for C#/.NET, I stumbled upon a really interesting tool called **AICommitMessage**. The tool generates commit messages using AI, taking your git diff and returning a relevant message. When I found an issue to integrate support for the **Llama-3-1-405B-Instruct** model, I decided to give it a shot and asked to be assigned to the task.
+
+What followed was actually pretty fun and a rewarding experience. Not only did I complete the issue, but I also learned more about testing, environment management, and the open-source contribution process. This is a tool I’ll be using going forward, and I’m excited to contribute more to it—and to other projects as well!
+
+Here’s a breakdown of the problems I encountered, the solutions I implemented, and what I learned along the way.
+
+---
+
+#### The Task
+
+The issue had clearly defined goals:
+
+1. Install the **Azure AI inference SDK**.
+2. Add support for the **Llama-3-1-405B-Instruct** model.
+3. Ensure both Llama and OpenAI models worked together without issues.
+4. Update the documentation to include configuration steps for Llama.
+5. Create meaningful unit and integration tests for the new functionality.
+
+However, as I started working, I encountered a bit of problems like:
+
+1. **Environment Variable Conflicts**: Managing environment variables for multiple models caused unexpected results during testing.
+2. **Unpredictable AI Outputs**: Testing AI-generated outputs was difficult because responses were inherently dynamic.
+3. **Unsupported Model Handling**: Gracefully handling unsupported models required clear communication without disrupting the user experience.
+4. **Lack of Experience**: As my first contribution, understanding the existing project patterns added a learning curve.
+
+---
+
+#### Improved Tests for AI Outputs
+
+AI-generated outputs are unpredictable, which makes exact-match testing impractical. I focused on validating patterns or keywords using regular expressions, ensuring flexibility while maintaining robust test coverage.
+
+```csharp
+[Fact]
+public void GenerateCommitMessage_WithLlamaModel_Should_ReturnExpectedOutput()
+{
+    Environment.SetEnvironmentVariable("AI_MODEL", "llama-3-1-405B-Instruct");
+    var options = new GenerateCommitMessageOptions
+    {
+        Branch = "feature/llama",
+        Diff = "Add llama-specific functionality",
+        Message = "Initial llama commit"
+    };
+
+    var result = _service.GenerateCommitMessage(options);
+
+    result.Should().MatchRegex("(?i)(?=.*add)(?=.*llama)");
+}
+```
+
+---
+
+#### New Problem: Defaulting Environment Variables
+
+Another challenge was ensuring the tool behaved predictably when some environment variables were missing or set incorrectly. To handle this:
+
+- I implemented logic to fallback to default values or existing configurations if new inputs weren’t provided.
+- This ensures the tool remains usable even with incomplete configurations, reducing setup friction for developers.
+
+```csharp
+public static void SetEnvironmentVariableIfProvided(
+    string variableName,
+    string newValue,
+    string existingValue
+)
+{
+    var currentValue = Environment.GetEnvironmentVariable(variableName);
+
+    if (!string.IsNullOrWhiteSpace(newValue))
+    {
+        Environment.SetEnvironmentVariable(variableName, newValue);
+    }
+    else if (!string.IsNullOrWhiteSpace(existingValue) && existingValue != currentValue)
+    {
+        Environment.SetEnvironmentVariable(variableName, existingValue);
+    }
+}
+```
+
+This approach meant that users could swap between models without having to redefine keys and url endpoints.
+
+---
+
+#### Documentation Updates
+
+Clear documentation was essential for ensuring other developers could easily configure and use the Llama model. I added:
+
+- Instructions for configuring environment variables for both models.
+- Examples of test cases for supported and unsupported models.
+
+---
+
+#### Results
+
+The final implementation achieved:
+
+1. **Seamless Integration**: Both Llama and OpenAI models worked together without disrupting existing functionality.
+2. **Robust Testing**: By focusing on patterns and behaviors, tests became more reliable and flexible.
+3. **Clear Documentation**: Updated documentation provided a strong roadmap for future contributors.
+
+---
+
+#### Reflection
+
+Contributing to open-source for the first time was actually pretty fun and rewarding. I had always found the idea daunting, but this experience changed my perspective. Sure it was a smaller project, but working on AICommitMessage gave me the opportunity to learn about testing strategies, environment variable management, and the collaborative development space in general. It's a start and my intro to Open Source contributions.
+
+I feel like this will be a tool I’ll be using regularly, and I’m excited to contribute more—both to this project and others. You can check out the project on GitHub [here](https://github.com/guibranco/dotnet-aicommitmessage), and my pull request [here](https://github.com/guibranco/dotnet-aicommitmessage/pull/155). The process has boosted my confidence, and I’m looking forward to tackling even bigger challenges in the future!
