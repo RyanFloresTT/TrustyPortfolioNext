@@ -35,6 +35,7 @@ const projectsData: IProject[] = [
       'Starting out as a TD, and turned into a Zombie Survival game where you can move your "towers"',
     imgSrc: '/static/images/projects/zombiesurv.gif',
     blog: '/blog/crystal-chaos-project',
+    github: 'https://github.com/RyanFloresTT/CrystalChaos',
   },
   {
     title: 'GBJAM11 - Hopscape',
