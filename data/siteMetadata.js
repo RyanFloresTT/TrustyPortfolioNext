@@ -3,7 +3,7 @@ const siteMetadata = {
   title: "Ryan's Blog",
   author: 'Ryan Flores',
   headerTitle: "Ryan's Blog",
-  description: 'A blog going over my software/game development journey!',
+  description: 'A blog going over my software engineering and game development journey!',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://trustytea.me',

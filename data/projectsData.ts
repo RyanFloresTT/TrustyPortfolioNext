@@ -2,6 +2,14 @@ import { IProject } from './project'
 
 const projectsData: IProject[] = [
   {
+    title: 'Book Collection App',
+    description: 'An app with React and Go that allows you to visualize your book collection!',
+    imgSrc: '/static/images/projects/library.jpg',
+    blog: '/blog/book-collection-app-project',
+    github: 'https://github.com/RyanFloresTT/BookCollectionApp',
+    demo: 'https://frontend-production-02b1.up.railway.app/',
+  },
+  {
     title: 'E-Commerce Site',
     description: 'A project I made for my capstone class!',
     imgSrc: '/static/images/projects/jom.jpg',
