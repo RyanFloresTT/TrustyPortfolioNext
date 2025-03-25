@@ -1,0 +1,104 @@
+---
+title: 'Weekly GameDev Standup - 1'
+date: '2025-03-24'
+tags: ['CSharp', 'Unity', 'Game Development']
+draft: false
+summary: My weekly standup for game development!
+---
+
+# Project Shmup Revival
+
+About a month ago, I decided to resurrect Project Shmup. Despite some friends suggesting it might be too ambitious, I remain convinced this is a project worth seeing through to completion. This post covers the significant progress made since returning to development.
+
+## Major Updates
+
+### Core Systems & Architecture
+- Implemented a new **ClassData ScriptableObject** system
+  - Replaced the old Resources-folder based approach
+  - Enables class progression mechanics
+  - Provides support for icons and descriptions
+  - Handles base stats for all entities
+- In the process of developing a custom **Class Creation Tool**
+  - Built using Odin and Unity Editor functionality
+  - Provides an intuitive layout for spell/ability editing
+  - Streamlines the class development workflow
+  - Some really cool features I'd like to add are
+    - Model Preview
+    - Prefab Creation
+    - Audio Preview
+    - Basically, everything that *can* deal with classes, I want in this tool.
+
+### Gameplay Improvements
+- Enhanced animation system
+  - Added movement animations
+  - Implemented a death sequence for the player
+  - Added support for ability animations and SFX
+    - Used Ability Types to add different SFX/Animations based on type. Ex. Projectile Abilities need an explosion sfx and animation.
+  - Utilizing animation layers for better control
+- Refined player and enemy systems
+  - Cleaned up Playable Classes codebase
+  - Improved entity initialization through ClassData
+    - Classes like the Pyromancer are based on ClassData and BaseStats. BaseStats is a field of ClassData.
+    - This leads to better tuning knobs
+  - Fixed NavMesh pathing issues
+
+### Audio & Visual Updates
+- Implemented new sound system features
+  - Added AudioManagers
+  - Integrated title screen music
+  - Created ability-specific SFX framework
+    - Generic "Cast" sounds
+    - Special "Explosion" effects for projectiles
+- Visual improvements
+  - Updated ability VFX
+  - Shifted to a 3rd person, over the shoulder, camera angle
+  - Imported new art assets for level design
+
+### UI and Game Flow
+- Started development on Class Selection UI
+  - Mostly works, might need a few tweaks to visuals and code cleanup
+- Implemented game flow sequence
+  - Title Scene → Logo → Class Selection → Default Level
+  - Added seamless death-to-class-selection loop
+    - I had problems doing this at first, had a lot of reference issues, but managed to fix them all for the infinite gameplay loop
+
+## Technical Deep Dives
+
+[Upcoming Blogs]
+- Comparison of AI NavMesh vs A* pathfinding
+- Analysis of built-in Unity UI vs UI Toolkit
+- Detailed look at the Class Creation Tool
+- Discussion of tool selection criteria
+- Add spawn and death sequence for the enemies
+
+## Next Sprint Goals
+
+- Fix bug where enemies won't die past wave 1
+- Rotate toward the cursor when the player when an ability is used that needs to be aimed (Projectile)
+- Tighten up SFX/Animations
+- Balance Leveling Curve for Players and Spawn Rate Curve for Enemies
+  - Hopefully leading to a more balanced game to play and give to friends to playtest the simple gameplay loop I have
+- Implement a scoring system
+  - Score will be based on how many waves you can successfully clear
+- Give Enemies a Spawn/Death animation
+- Use NavMesh to spawn enemies around the player, so I don't have to use hard-coded positions
+
+## Future Plans
+
+### These are stretch goals that I want to acheive in the future
+
+- Upgrade System
+- Class Unlock System
+- Permanent Upgrades to Classes
+- Equipment/Loot/Whatever In-Game/Runs
+- 1 Boss Fight
+  - Boss Music + Phases
+  - Boss Specific Loot/Upgrades
+  - Boss Specific Environments
+- Multiple Levels
+
+Be sure to watch the accompanying YouTube video [here](https://youtu.be/Y3oAPNFXMSw) to get a better look at what I've done!
+
+I know this is a long list of things to read, but my future standups will be more concise. This extended format was chosen to provide a comprehensive catch-up on the project's current state.
+
+I'm very excited to be working on this game and see where it goes. If you have any comments or suggestions, I'm open to feedback in the comments!
