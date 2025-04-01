@@ -1,0 +1,71 @@
+---
+title: 'Weekly GameDev Standup - 2'
+date: '2025-03-24'
+tags: ['CSharp', 'Unity', 'Game Development']
+draft: false
+summary: My weekly standup for game development!
+---
+
+# **Dev Blog: Enemy Animations, Wave Scoring, and Scene Management**
+
+Hey everyone! It’s been a sorta productive week, I wish I had a bit more time to work on things, I feel like I didn't get much done but let's dive right in! With a mix of bug fixes, new features, and some quality-of-life improvements, here’s a breakdown of what I’ve been working on and what’s coming next.
+
+---
+
+## **What’s New?**
+
+### **1. Enemy Death & Spawn Animations**
+- **Added a death animation to enemies** – No more just disappearing into the void! Enemies now play an animation before despawning.
+- **Started working on spawn animations** – For now, it’s just the death animation played in reverse (hey, it works! 😆). I’ll polish this later with something more fitting. These aren't in the gameplay footage for this week, but it was something that I worked on.
+
+### **2. Fixed the "No Death Past Wave 2" Bug**
+This was an interesting one. After refactoring the `Health` class, I added a check to prevent replaying death animations and firing off events if the character was already dead. However, I forgot to **reset the health** when pulling enemies back from the object pool. And since the game thought they were already dead, I couldn't kill enemies.
+### **3. Wave-Based Scoring System (Temporary)**
+- **Implemented a basic wave-scoring system** – The longer you survive, the higher your score.
+- **Max score now displays on the title screen** – Flex those high scores!
+
+### **4. Scene Management & Replayability**
+- **Stitched together scenes for smoother progression** – You can now transition between four different levels. These are pre-made levels that came with the Synty packs I'm using.
+- **Bug Alert:** There’s an issue where the game sometimes skips the next level before continuing. Still investigating! I think it has to do with the way I'm incrementing wave count, and moving to the shop when I hit a certain point, I've got to look into it more.
+- **Made temporary coins static** – Coins now persist between scenes, so you don’t lose them when changing levels. Permanent coins remain unchanged, these are saved to the file, these temporary coins will be used in the shop level in the future.
+
+### **5. Enemy Spawning Improvements**
+Instead of dropping enemies randomly on NavMesh points (which sometimes spawned them out of bounds), I’ve **restricted spawning to predefined points** near the player. A more controlled solution is in the works, sorta, still planning on what I'd like to do here. If you have any suggestions lmk!
+
+### **6. New Shop Scene (WIP)**
+- Created a blank shop scene (for now).
+- It fires a `PlayerHasFinishedShopping` event after 1 second—just a placeholder until I implement actual shop mechanics.
+- Something that I realize I'm doing ***very*** wrong, is enumerating over an enum, and using the next value to go to that scene. I don't like this at all, it just feels icky. I want to have a way more controlled way of handling this. A solution I'll be exploring is a ScriptableObject that holds a list of scenes I want to go to, in that order.
+
+### **7. Experience System Refactor**
+- **Replaced the public `Experience` field with a virtual `GetExperience()` method** – Now, each character type (player, enemy) can define its own experience logic.
+- For example, this allows me to give Players have a static experience, while enemies have an instance for each game object.
+
+---
+
+## **What’s Next?**
+
+### **Quality of Life Improvements**
+- **Rotate player toward cursor when casting spells** – Right now, players can use abilities while facing the camera, still firing projectiles in the direction of the cursor, which can lead to inaccuracies in aiming. I plan to rotate the player quickly to that new direction on firing.
+- **UI polish** – Cleaner menus, better feedback.
+- **Enemy ability casting only in Line of Sight (LoS)** – No more unfair attacks through walls.
+- **Force class selection before starting the game** – No more accidentally jumping in without choosing a playstyle.
+- **Fix Y-axis bug for area-denial abilities** – Right now, some spells like the Area Denials cast into the ground instead of at the correct height.
+
+### **Optimizations & Future Work**
+- **Update documentation** – Keeping track of changes for future me (and anyone else who reads this).
+- **Clean Files and Refactor where Necessary** - I need/want to clean up my code. For the most part, things are documented, and are clean, but I can do better. Like putting files into their proper namespaces and continuing to update internal docs.
+- **Optimize ability registration** – Reduce overhead when loading abilities.
+	- Right now I have every single enemy and player (even though there is only ever 1 player) register their abilities during their early lifecycle stages. This is definitely unnecessary. I could just have a separate monobehavior that does this a single time.
+	- Thinking about it, it really could be a static class that I call as soon as the game starts, something I can call on title screen load or something similar.
+- **Create a scene template for new levels** – Speed up level creation with a reusable base.
+	- There are multiple prefabs that I have to add to a level to allow everything to work at this point, creating a template scene for me will speed up things a lot.
+
+---
+
+## **Final Thoughts**
+Lots of progress, but still plenty to do! The biggest challenges right now are **scene management bugs** and **enemy spawning logic**, but I’m excited to refine these systems.
+
+What do you think? Any features you’d like to see prioritized? Let me know!
+
+Until next time, happy coding! 🚀
