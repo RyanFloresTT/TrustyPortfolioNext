@@ -10,4 +10,5 @@ export interface IProject {
   unreal?: string
   itchio?: string
   notion?: string
+  isWIP?: boolean
 }

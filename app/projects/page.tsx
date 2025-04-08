@@ -29,6 +29,7 @@ export default function Projects() {
                 unreal={d.unreal}
                 itchio={d.itchio}
                 notion={d.notion}
+                isWIP={d.isWIP}
               />
             ))}
           </div>

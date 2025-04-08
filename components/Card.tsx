@@ -22,13 +22,23 @@ const Card = ({
   unreal,
   itchio,
   notion,
+  isWIP,
 }: IProject) => (
   <div className="md max-w-[544px] p-4 md:w-1/2">
+    {/* Ensure the card container is relative to position the banner */}
     <div
       className={`${
         imgSrc && 'h-full'
-      }  overflow-hidden rounded-md border-2 border-gray-200 border-opacity-60 dark:border-gray-700`}
+      } relative overflow-hidden rounded-md border-2 border-gray-200 border-opacity-60 dark:border-gray-700`}
     >
+      {/* WIP Banner */}
+      {isWIP && (
+        <div className="absolute right-2 top-2 rounded-md bg-yellow-300 px-2 py-1 text-xs font-bold text-black shadow-lg">
+          I'm currently working on this!
+        </div>
+      )}
+
+      {/* Image section */}
       {imgSrc &&
         (blog ? (
           <Link href={blog} aria-label={`Link to ${title}`}>

@@ -2,6 +2,15 @@ import { IProject } from './project'
 
 const projectsData: IProject[] = [
   {
+    title: 'Project Shmup',
+    description: 'Another attempt at the Roguelike genre.',
+    imgSrc: '/static/images/projects/shmup.png',
+    notion:
+      'https://chiseled-harrier-6f9.notion.site/Shmup-Code-Documentation-a472ac554476456baabfe83d99637f99',
+    blog: '/blog/project-shmup-project',
+    isWIP: true,
+  },
+  {
     title: 'Book Collection App',
     description: 'An app with React and Go that allows you to visualize your book collection!',
     imgSrc: '/static/images/projects/library.jpg',
@@ -14,14 +23,6 @@ const projectsData: IProject[] = [
     description: 'A project I made for my capstone class!',
     imgSrc: '/static/images/projects/jom.jpg',
     blog: '/blog/e-commerce-site-project',
-  },
-  {
-    title: 'Project Shmup',
-    description: 'Another attempt at the Roguelike genre.',
-    imgSrc: '/static/images/projects/shmup.png',
-    notion:
-      'https://chiseled-harrier-6f9.notion.site/Shmup-Code-Documentation-a472ac554476456baabfe83d99637f99',
-    blog: '/blog/project-shmup-project',
   },
   {
     title: 'Super Hangman',
