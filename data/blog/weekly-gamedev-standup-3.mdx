@@ -1,0 +1,222 @@
+---
+title: 'Weekly GameDev Standup - 3'
+date: '2025-04-07'
+tags: ['CSharp', 'Unity', 'Game Development']
+draft: false
+summary: My weekly standup for game development!
+---
+
+# 🎮 Weekly Game Dev Update!
+
+Hello and welcome back to another weekly update on my game! I got quite a bit done this week, so let's dive right in! This week, I'm going to take you a little deeper into my thought process, and show some code!
+
+---
+
+# 🧟‍♂️ Enemy Spawn Curve Adjustments
+
+I sorta tightened up the spawn curve for enemies, I still have to work on the curve for the player, but at least the enemies aren't spawning in the size of an army. Right now I've just changed the actual graph I use to be a whole lot less aggressive, so it's more of a 1:1 spawning rate. Wave 8 will spawn 8 enemies.
+
+- Technically, wave 8 has a total spending cost of 8. Enemies have a cost that the spawner takes into account, so tougher enemies are more, this helps to balance the spawning out a bit, so you don't have a chance to go up against 8 bosses vs 8 basic enemies for example.
+
+---
+
+# ⚙️ Ability Registration Optimization
+
+I optimized the registration of abilities.
+
+- I added a new MonoBehaviour that is called on the title menu scene, which registers each ability type.
+- Used reflection to dynamically register the abilities.
+
+```cs
+public class AbilityRegistration : MonoBehaviour {
+    void Awake() {
+        AbilityRegistrar.RegisterAbilities();
+    }
+}
+
+
+public class AbilityRegistrar {
+    public static void RegisterAbilities() {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+
+        var abilityDataTypes = assembly.GetTypes()
+            .Where(t => typeof(AbilityData).IsAssignableFrom(t) && !t.IsAbstract);
+
+        foreach (Type abilityDataType in abilityDataTypes) {
+            string abilityName = abilityDataType.Name.Replace("Data", string.Empty);
+            Type abilityType = assembly.GetTypes()
+                .FirstOrDefault(t => t.Name == abilityName && typeof(Ability).IsAssignableFrom(t) && !t.IsAbstract);
+
+            if (abilityType != null) {
+                MethodInfo registerMethod = typeof(AbilityFactory).GetMethod("Register")
+                    ?.MakeGenericMethod(abilityDataType, abilityType);
+                if (registerMethod != null) registerMethod.Invoke(null, null);
+                Debug.Log($"Registered: {abilityDataType.Name} -> {abilityType.Name}");
+            }            else
+                Debug.LogWarning($"No matching Ability class found for {abilityDataType.Name}");
+        }
+    }
+}
+```
+
+- **What’s happening here:**
+  - A MonoBehaviour calls the static method `RegisterAbilities()` at game start.
+  - It scans the assembly for all non-abstract `AbilityData` classes and tries to find a matching `Ability` class by name.
+  - Then it calls a generic method `Register` on `AbilityFactory`.
+  - Before, I was registering abilities in both enemies and players redundantly. Now it's all handled at startup, this is cleaner and more efficient!
+
+---
+
+# 📍 Area of Denial Y-Axis Fix
+
+I managed to fix the y axis weirdness for Area of Denial casting
+
+- Going into this problem, I had feeling that this was only a problem because I hard coded the value of 0 into this, since this game had originally been a top down game with no y changes in the terrain.
+- I ended up solving this by having the character perform a raycast at their target, with the origin being their target, and the direction being the ground, if it hits the ground, then we summon the Area of Denial effect there.
+
+---
+
+# 👁️ Enemy Line of Sight (LOS) Check
+
+I made it so enemies should only be able to cast if they have LOS
+
+- Going into this, I knew I'd need raycasting.
+- Currently, every enemy does a raycast every frame, which is probably too much.
+- The plan is to make a timer MonoBehaviour to emit an event enemies listen to, raycasting just a few times a second.
+
+added a tweak to my `ConditionSO` implementation:
+
+```cs
+[CreateAssetMenu(fileName = "NewCondition", menuName = "AbilitySystem/Condition/IsPlayerInRange")]
+public class IsPlayerInRangeConditionSO : ConditionSO {
+    [SerializeField] float range;
+    [SerializeField] LayerMask ignoredLayers;
+    [SerializeField] LayerMask playerLayer;
+
+    public override bool CheckCondition(Enemy enemy) {
+        Vector3 enemyPosition = enemy.transform.position;
+        enemyPosition.y++;
+
+        Vector3 targetPosition = enemy.Target.position;
+        targetPosition.y++;
+        Vector3 directionToTarget = targetPosition - enemyPosition;
+
+        var hits = Physics.RaycastAll(enemyPosition, directionToTarget, range, ~ignoredLayers);
+
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits) {
+            if (((1 << hit.collider.gameObject.layer) & playerLayer) != 0) {
+                enemy.ShouldMove = false;
+                return true; // Direct line-of-sight to the player
+            }
+
+            enemy.ShouldMove = true;
+            return false; // Obstruction found
+        }
+
+        enemy.ShouldMove = true;
+        return false;
+    }
+}
+```
+
+- Previously just checked distance using `Vector3.Distance()`.
+- Now checks both **range** and **LOS** with a raycast. Simple, effective, and reusable with different ranges per enemy type!
+
+---
+
+# 🧙‍♂️ Class Selection is Now Mandatory
+
+I made the quick fix to ensure that players **must** select a class before proceeding:
+
+- I clicked play one too many times without selecting a class and got annoyed that I kept getting errors 😅
+- Now you can’t continue without selecting one. Shows a small (slightly buggy) error message. "Must select a class".
+
+---
+
+# 💰 Physics-Based Pickups
+
+I've removed the magnetization of items toward the player (for now). Items have physics, this feels more fun!
+
+- Currently applies to coins and XP orbs.
+- Perma coins still floats.
+- Need to adjust colliders, some items are tricky to pick up. Might be due to mismatch between collider sizes.
+
+---
+
+# ❌ Enemies Can't Cast After Death
+
+I made the quick and simple fix of making sure that enemies cannot finish their cast if they die mid-cast.
+
+- _Before_: kill them while casting, and they’d still cast their ability.
+- _Now_: simple health check prevents this. Clean and satisfying!
+
+---
+
+# 🧭 Wave Progression Bugs
+
+Going to other levels was a bit buggy because of the order I was firing off events and calling them when unnecessary.
+
+- I was using the `OnNextLevel` event at the start of a wave to update the UI so the wave count shows correctly.
+- However, this incremented the wave count too early.
+- While fixing that, I ran into a bunch of other issues — like infinite loops after a few waves due to the wave count not increasing after the first level.
+- Fixed it by adding a new event and making sure waves increment **after** going to the shop.
+- Ensured enemies don’t spawn once a wave ends.
+
+---
+
+# 🧠 GameObject Pool Reference Bug
+
+Enemies weren’t consistently getting their reference to the GameObject pool.
+
+- After digging around, I couldn’t find a solid root cause.
+- Now I just manually set the pool reference when enemies are spawned through the spawner. When it calls `SpawnEnemy`, it manually sets the reference.
+- Weirdly, only some enemies were affected during initialization.
+
+---
+
+# 🎯 Visual/UX Additions
+
+I added "loading" circle to the loading screen :)
+
+- It's a small thing, but it looks nicer than just a blank black screen.
+
+---
+
+# 👾 Enemy Spawn Point Refactor
+
+I created a dedicated **EnemySpawnPoint** GameObject:
+
+- Gave it a custom icon in the editor for easy visibility.
+- It now auto-registers with the `EnemySpawner` on load.
+- This removes the need to drag-and-drop spawn points into the spawner, I just place one in the scene and I've added a potential spawnpoint!
+- Still need to clean up some navmesh jank around the spawn areas.
+- Enemies now spawn in a circle around the player with a min/max range.
+  - This took me a while to realize, I thought there was some more weirdness going on, but this wasn't working for quite some time because I didn't realize my values were just too low, enemies were spawning too close to the player, but I increased the values by 5x and it started to produce expected results.
+- I tweaked logic to pick the **furthest X** points instead of the nearest.
+
+---
+
+# 🧪 WIP / Upcoming Work
+
+- Still haven’t resumed work on the **class creation tool**. I’ll probably get back to this once the core gameplay loop feels solid and I could use the help generating more classes.
+
+- Started work on making the **player rotate toward the cursor before firing**:
+
+  - Thought it’d be a quick fix. If an ability requires aiming (maybe I need to flag this on the ability base type), I’d just rotate the player before firing.
+  - Not so simple. I’m using the Starter Assets player controller, which is hard to interact with directly.
+  - Might need to write my own controller or find a better workaround.
+  - Last thing I did: added a `UnityEvent` on the `Character` class, fired from the `Projectile` ability, which is tied to the controller to toggle aiming/rotation.
+  - Still not working — needs more digging.
+
+- If I get too tired of trying to solve the rotation, I'll be looking into starting work on items.
+  - I did start the initial draft of how I want to design the gameplay loop of the system.
+  - ![](https://res.cloudinary.com/djdtmbpce/image/upload/v1744085204/Pasted_image_20250407205444_cgaamp.png)
+  - Yes, this is very much how Risk of Rain 2 does it, but I'm thinking of adding a guaranteed drop for a permanent coin from bosses, so you can always expect to see one when you kill them.
+  - I started working on designing the technical side of this, but I don't have a chart for it yet. I'll be making use of ScriptableObjects for sure though!
+- I want to work on melee skills.
+  - I had these working at some point, but I hadn't put much work into them since, so I need to update them again.
+- I want to have have the Area of Denial abilities show a "ghost" section where it will be before cast, so the player can move out of the way of enemy casts, and better aim where they will place theirs.
+
+That’s it for this week! Slowly but surely getting the gameplay loop into a good spot. Hoping to knock out a few more of these bugs and blockers soon, and maybe even start work on items if things settle down. Thanks for reading! Have a great day :)
