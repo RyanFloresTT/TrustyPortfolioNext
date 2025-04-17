@@ -6,6 +6,7 @@ const projectsData: IProject[] = [
     description: 'A DevLog App Made in Rails',
     imgSrc: '/static/images/projects/devlog.png',
     blog: '/blog/my-first-ruby-project',
+    github: 'https://github.com/RyanFloresTT/DevLog',
   },
   {
     title: 'Project Shmup',
