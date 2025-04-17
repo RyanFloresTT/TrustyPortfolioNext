@@ -24,7 +24,7 @@ const Card = ({
   notion,
   isWIP,
 }: IProject) => (
-  <div className="md max-w-[544px] p-4 md:w-1/2">
+  <div className="sm max-w-[544px] p-4 md:w-1/2">
     {/* Ensure the card container is relative to position the banner */}
     <div
       className={`${

@@ -14,7 +14,7 @@ const projectsData: IProject[] = [
     description: 'Another attempt at the Roguelike genre.',
     imgSrc: '/static/images/projects/shmup.png',
     notion:
-        'https://chiseled-harrier-6f9.notion.site/Shmup-Code-Documentation-a472ac554476456baabfe83d99637f99',
+      'https://chiseled-harrier-6f9.notion.site/Shmup-Code-Documentation-a472ac554476456baabfe83d99637f99',
     blog: '/blog/project-shmup-project',
     isWIP: true,
   },
