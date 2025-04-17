@@ -7,6 +7,7 @@ const projectsData: IProject[] = [
     imgSrc: '/static/images/projects/devlog.png',
     blog: '/blog/my-first-ruby-project',
     github: 'https://github.com/RyanFloresTT/DevLog',
+    isWIP: true,
   },
   {
     title: 'Project Shmup',
