@@ -1,0 +1,22 @@
+---
+title: 'Adding Over Time Effects To Shmup'
+date: '2025-04-17'
+tags: ['CSharp', 'Game Development']
+draft: true
+summary: I talk about how I implemented Over Time Effects like Damage over Time and Healing over Time—in Shmup.
+repoName: ''
+---
+
+## Adding Status Effects
+
+Creating status effects for Shmup was an interesting challenge, but it was a bit easier than I thought. I began by building a `StatusEffectManager` class, which was designed as a smaller, simplified version of the existing `StatsMediator` class. I wanted this new manager to handle a set of effects like burning damage or regenerative healing that would change a character's stats over time.
+The first step was straightforward: setting up a list of status effects within the manager class. This list would track all active effects on a `Character` object, ticking their timers down one by one each frame. I borrowed the flow of execution from the existing `StatsMediator`, ensuring that once a timer expired, the status effect was flagged for removal. Otherwise, the effect would keep running, applying its changes on schedule.
+After that, I added a few fields to the `StatusEffect` class for things like VFX, duration, and the magnitude (or "amount") of the effect. Keeping things simple, I opted for a flat rate of effect per second, I'm not going to have anything that can modify the duration or scaling for now. This was my first iteration, and I didn’t want to overcomplicate things before validating the core system.
+Once the structure was in place, I moved on to testing. My initial implementation calculated the damage of a status effect as `"Amount / Duration"` applied every second. This worked, but I realized I would eventually need an editor to make it clearer for designers, something like: _"Does {X} damage over {X} seconds."_
+Then came the debugging phase.
+I was running into an issue where projectiles were not triggering the status effects. I added some debug logs and breakpoints to figure out what was going wrong, but frustratingly, nothing was showing up. After some more investigation, I found out what was wrong, and it's a dumb mistake on my part. I had *accidentally* copied a snippet of code from `StatMediators` that checked if the list it was iterating over had values, except the condition was inverted! The logic was effectively saying, "If the list has values, do nothing." The Classic Copy/Paste Mistakes! Once I fixed that, the effects started registering properly.
+With the effects being added successfully, I shifted focus to ensuring they were actually functioning as intended. I encountered another bug in how damage was applied. In the status effect logic, I was using negative numbers to deal damage, but for abilities, I had implemented positive numbers. This mismatch resulted in enemies being healed by damage-based status effects instead of being harmed. After fixing this inconsistency, everything finally worked as intended.
+By this point, the core system was functional, and I even started thinking about expanding its utility. What if effects could have more uses beyond damage? All I have to do now is create a base type of ability which adds a status effect onto the player, and as long as I give it a positive value, it would be a healing-over-time effect, or maybe some ability could even cause self-damage, opening up new possibilities for interesting character designs. The idea of a class built around damaging itself to strengthen its abilities is an interesting concept that I might explore further in the future.
+
+## Closing Thoughts
+That marked the end of this session. I could feel a cold sneaking up on me, so I decided to wrap things up early. Honestly, I expected this task to take longer, but I’m pretty pleased with how quickly the system came together. It’s simple and relatively clean for a first pass, even if there are a few rough spots. Next time, I’ll focus on polishing and refining the code, it’s cleanup time!
